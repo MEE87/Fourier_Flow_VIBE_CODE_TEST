@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fourier Flow | Systematic Learning</title>
+    <title>Fourier Flow | Deep Learning</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- MathJax for LaTeX Rendering -->
@@ -127,7 +127,7 @@
         .flip-card {
             background-color: transparent;
             perspective: 1000px;
-            height: 420px; /* Increased height for content */
+            height: 340px; /* Adjusted height */
             cursor: pointer;
         }
 
@@ -168,10 +168,10 @@
         }
 
         .flip-card-back {
-            background: #0f0f0f;
+            background: #111;
             transform: rotateY(180deg);
             overflow-y: auto;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             justify-content: space-between;
         }
 
@@ -238,7 +238,9 @@
         .lesson-body h3 { color: #fff; font-size: 1.4rem; font-weight: 600; margin-top: 2.5rem; margin-bottom: 1rem; border-left: 4px solid #fff; padding-left: 1rem; letter-spacing: 0.05em; }
         .lesson-body h4 { color: #d4d4d4; font-size: 1.1rem; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
         .lesson-body p { color: #a3a3a3; margin-bottom: 1rem; line-height: 1.8; font-weight: 300; font-size: 1.05rem; }
-        .lesson-body ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; color: #a3a3a3; }
+        .lesson-body ul, .lesson-body ol { padding-left: 1.5rem; margin-bottom: 1.5rem; color: #a3a3a3; }
+        .lesson-body ul { list-style-type: disc; }
+        .lesson-body ol { list-style-type: decimal; }
         .lesson-body li { margin-bottom: 0.5rem; }
         .lesson-body .math-block { 
             background: #111; 
@@ -256,6 +258,45 @@
             padding: 1.5rem; 
             margin: 2rem 0; 
             color: #dbeafe; 
+        }
+
+        /* Spoiler / Hidden Answer Style */
+        .spoiler-blur {
+            filter: blur(8px);
+            cursor: pointer;
+            transition: all 0.5s ease;
+            user-select: none;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            position: relative;
+        }
+        .spoiler-blur:hover {
+            filter: blur(4px);
+            background: rgba(255,255,255,0.05);
+        }
+        .spoiler-blur::before {
+            content: '點擊查看解答 (CLICK TO REVEAL)';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .spoiler-blur.revealed {
+            filter: none;
+            cursor: auto;
+            user-select: text;
+            background: transparent;
+        }
+        .spoiler-blur.revealed::before {
+            opacity: 0;
         }
 
         /* Scrollbar */
@@ -336,7 +377,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-4">將函數視為無限維空間中的向量，並利用積分定義出「內積」來判斷它們是否垂直（正交）。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-4">將函數視為無限維空間中的向量，並利用積分定義出「內積」來判斷它們是否垂直（正交）。這是整個理論的幾何基石，讓我們能將複雜訊號投影到單純的基底上。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$\langle f, g \rangle = \int_{a}^{b} f(t) \overline{g(t)} \, dt = 0$$
                                     </div>
@@ -357,7 +398,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-4">將週期性波形分解為無窮多個正弦波的疊加，並利用歐拉公式將其統整為優美的複數指數形式。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-4">將週期性波形分解為無窮多個正弦波的疊加，並利用歐拉公式將其統整為優美的複數指數形式。這是從「多項式逼近」跨越到「波動逼近」的關鍵轉折。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$f(t) = \sum_{n=-\infty}^{\infty} c_n e^{i n \omega_0 t}$$
                                     </div>
@@ -391,7 +432,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">將週期推向無窮大，處理非週期訊號。透過積分變換在兩個宇宙間穿梭。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">將週期推向無窮大，使離散頻譜轉化為連續頻譜，從而處理非週期訊號。透過積分變換，我們得以在「時域」與「頻域」兩個平行宇宙間自由穿梭。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$F(\omega) = \int_{-\infty}^{\infty} f(t) e^{-i\omega t} dt$$
                                     </div>
@@ -412,7 +453,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">揭示「時域卷積等於頻域相乘」。將微積分運算簡化為代數乘法。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">揭示「時域卷積等於頻域相乘」的深刻對應，將複雜的微積分運算簡化為單純的代數乘法。這是解析線性系統（LTI）與濾波器設計最強大的數學工具。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$\mathcal{F}\{(f * g)(t)\} = F(\omega) \cdot G(\omega)$$
                                     </div>
@@ -433,9 +474,9 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">證明能量守恆，並引入狄拉克 $\delta$ 函數來處理奇異點。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">利用帕塞瓦爾定理證明能量在變換前後的守恆，並引入狄拉克 $\delta$ 函數來處理奇異點。這讓我們能對常數或純弦波等「發散」訊號進行嚴格的數學分析。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
-                                        $$\int |f(t)|^2 dt = \frac{1}{2\pi} \int |F(\omega)|^2 d\omega$$
+                                        $$\int_{-\infty}^{\infty} |f(t)|^2 dt = \frac{1}{2\pi} \int_{-\infty}^{\infty} |F(\omega)|^2 d\omega$$
                                     </div>
                                 </div>
                                 <button onclick="openLesson(5, event)" class="btn-learn">深入學習 ➜</button>
@@ -467,7 +508,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">奈奎斯特定理：只有採樣頻率夠快，才能完美重建原始資訊而不發生混疊。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">搭建現實（類比）與電腦（數位）之間的橋樑，探討如何透過「梳狀函數」進行離散化。奈奎斯特定理告訴我們：只有採樣頻率夠快，才能完美重建原始資訊而不發生混疊。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$f_s > 2 f_{\max}$$
                                     </div>
@@ -488,7 +529,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">利用單位根的對稱性將計算複雜度從 $O(N^2)$ 降至 $O(N \log N)$。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">這是現代數位訊號處理的引擎，利用單位根的對稱性將計算複雜度從 $O(N^2)$ 降至 $O(N \log N)$。沒有這個演算法，就沒有今天的數位通訊與多媒體技術。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$X_k = \sum x_n e^{-i \frac{2\pi}{N} k n}$$
                                     </div>
@@ -509,7 +550,7 @@
                             <div class="flip-card-back">
                                 <div>
                                     <h4 class="text-sm font-bold text-white mb-2">簡介</h4>
-                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">傅立葉變換的物理極限：無法同時精確捕捉訊號的時間位置與頻率分佈。</p>
+                                    <p class="text-xs text-gray-300 leading-relaxed mb-2">探討傅立葉變換的物理極限：我們無法同時精確捕捉訊號的時間位置與頻率分佈。這不僅是海森堡不確定性原理的數學本質，也催生了小波變換等現代時頻分析工具。</p>
                                     <div class="text-xs text-white bg-white/5 p-2 rounded text-center">
                                         $$\sigma_t \cdot \sigma_\omega \ge \frac{1}{2}$$
                                     </div>
@@ -566,121 +607,846 @@
 
         // --- Detailed Course Content (Modal) ---
         const lessons = {
-            1: {
-                title: "函數空間與正交性",
+1: {
+                title: "函數空間與正交性 (The Geometry of Functions)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>打破「函數」與「向量」的界線。將函數視為無限維空間中的向量。</p>
-                        <h3>1. 向量空間的回顧</h3>
-                        <p>我們熟悉的三維向量空間 $\\mathbb{R}^3$ 由基底（Basis）組成。任何向量 $\\mathbf{v}$ 都可以表示為基底的線性組合。函數空間也是如此。</p>
-                        <h3>2. 內積的推廣</h3>
-                        <p>從 $\\mathbf{u} \\cdot \\mathbf{v}$ 到函數內積：</p>
+                        <p>這第一課是整個傅立葉變換的地基。如果這堂課的概念穩固了，後面的傅立葉級數公式（那些看似可怕的積分）對你來說將不再是「公式」，而是一種自然的「幾何投影」。</p>
+
+                        <h3>1. 觀念翻轉：函數就是向量</h3>
+                        <p>我們習慣將函數 $f(x)$ 看作平面坐標上的一條曲線。</p>
+                        <p>但在傅立葉分析（以及量子力學）中，請你戴上一副新的眼鏡：<strong>試著將函數 $f(x)$ 想像成一個「無限維度」的向量。</strong></p>
+                        <p>為什麼可以這樣想？</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>向量 ($\\mathbf{v}$)：</strong>是一個有序的數列，例如 $\\mathbf{v} = (v_1, v_2, \\dots, v_n)$。索引是離散的 $1, 2, \\dots, n$。</li>
+                            <li><strong>函數 ($f$)：</strong>也是一個對應關係，對於每一個 $t$ 都有一個值 $f(t)$。如果我們把連續的 $t$ 想像成無限密集的索引，那麼 $f(t)$ 就是一個有無窮多個分量的向量。</li>
+                        </ul>
+                        <p>這種思維轉換讓我們可以把線性代數強大的工具（內積、長度、角度、正交）借用到微積分裡。</p>
+
+                        <h3>2. 重新定義「內積」 (Inner Product)</h3>
+                        <p>在 $\\mathbb{R}^n$ 空間中，兩個向量 $\\mathbf{u}, \\mathbf{v}$ 的內積（Dot Product）定義為分量相乘再相加：</p>
+                        <div class="math-block">$$\\mathbf{u} \\cdot \\mathbf{v} = \\sum_{i=1}^n u_i v_i$$</div>
+                        <p>當我們從「離散」跨越到「連續」時，「求和 ($\\sum$)」就變成了「積分 ($\\int$)」。</p>
+                        
+                        <h4 class="text-white font-bold mt-4">函數空間的內積定義</h4>
+                        <p>對於定義在區間 $[a, b]$ 上的兩個實數函數 $f(t)$ 與 $g(t)$，我們定義它們的內積為：</p>
+                        <div class="math-block">$$\\langle f, g \\rangle = \\int_{a}^{b} f(t) g(t) \\, dt$$</div>
+                        
+                        <p><strong>注意（複數修正）：</strong><br>傅立葉變換大量涉及複數。在複數向量空間中，為了保證長度（Norm）是實數，內積的定義需要包含「共軛複數 ($\\overline{g(t)}$)」：</p>
                         <div class="math-block">$$\\langle f, g \\rangle = \\int_{a}^{b} f(t) \\overline{g(t)} \\, dt$$</div>
-                        <p>若兩個函數的內積為 0，我們稱這兩個函數<strong>正交 (Orthogonal)</strong>。</p>
-                        <h3>3. 正交函數集</h3>
-                        <p>為什麼選擇三角函數？因為三角函數系 $\\{1, \\cos(nt), \\sin(nt)\\}$ 是正交的。這意味著我們可以像用座標表示向量一樣，用一組係數來唯一表示一個函數。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>希爾伯特空間 (Hilbert Space)、柯西-施瓦茨不等式。</p></div>
+
+                        <h3>3. 核心魔法：正交性 (Orthogonality)</h3>
+                        <p>這是傅立葉變換最關鍵的概念。</p>
+                        <p>在幾何上，如果兩個向量垂直，它們的內積為 0。</p>
+                        <div class="math-block">$$\\mathbf{u} \\perp \\mathbf{v} \\iff \\mathbf{u} \\cdot \\mathbf{v} = 0$$</div>
+                        <p>同樣地，如果兩個函數的內積為 0，我們就說這兩個函數是<strong>正交（Orthogonal）</strong>的。這意味著它們在某種抽象意義上是「互不相關」或「垂直」的。</p>
+
+                        <h4 class="text-white font-bold mt-4">經典範例：三角函數系的正交性</h4>
+                        <p>讓我們驗證為什麼正弦波和餘弦波是很好的「積木」。考慮區間 $[-\\pi, \\pi]$，我們來計算 $\\sin(t)$ 與 $\\cos(t)$ 的內積：</p>
+                        <div class="math-block">$$\\langle \\sin(t), \\cos(t) \\rangle = \\int_{-\\pi}^{\\pi} \\sin(t) \\cos(t) \\, dt$$</div>
+                        <p>利用倍角公式 $\\sin(t)\\cos(t) = \\frac{1}{2}\\sin(2t)$：</p>
+                        <div class="math-block">$$= \\frac{1}{2} \\int_{-\\pi}^{\\pi} \\sin(2t) \\, dt$$</div>
+                        <p>因為 $\\sin(2t)$ 是一個奇函數（Odd function），或者從圖形上看，它在一個完整週期內的正面積與負面積剛好抵銷：</p>
+                        <div class="math-block">$$= 0$$</div>
+                        <p><strong>結論：</strong> $\\sin(t)$ 與 $\\cos(t)$ 在這個區間上是正交的。這就像 $x$ 軸與 $y$ 軸一樣垂直。</p>
+
+                        <h3>4. 投影 (Projection) = 傅立葉係數</h3>
+                        <p>在向量空間中，如果你想知道向量 $\\mathbf{v}$ 在 $x$ 軸方向的分量是多少，你會怎麼做？你會做投影（內積）：</p>
+                        <div class="math-block">$$\\text{Component} = \\frac{\\mathbf{v} \\cdot \\mathbf{e}_x}{\\mathbf{e}_x \\cdot \\mathbf{e}_x}$$</div>
+                        <p>傅立葉級數的本質完全一樣。</p>
+                        <p>我們想知道一個複雜訊號 $f(t)$ 裡面含有多少「頻率為 $n$ 的正弦波成分」？我們就將 $f(t)$ 投影到 $\\sin(nt)$ 上：</p>
+                        <div class="math-block">$$c_n = \\frac{\\langle f, \\sin(nt) \\rangle}{\\langle \\sin(nt), \\sin(nt) \\rangle} = \\frac{\\int f(t)\\sin(nt)dt}{\\int \\sin^2(nt)dt}$$</div>
+                        <p>這就是為什麼傅立葉係數的公式長成那樣。它不是魔法，它只是求投影分量。</p>
+
+                        <h3>課後思考與練習</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <p class="text-gray-300 mb-2">這堂課的目的是建立幾何直觀。為了鞏固這一點，請嘗試思考以下問題。</p>
+                            <h4 class="text-white font-bold mb-2">練習題：</h4>
+                            <ol class="list-decimal pl-6 text-gray-300 space-y-2">
+                                <li>證明 $\\cos(mt)$ 與 $\\cos(nt)$ 在區間 $[-\\pi, \\pi]$ 上是正交的（其中 $m, n$ 是不相等的正整數）。</li>
+                                <li>計算函數 $f(t) = 1$ 在區間 $[0, 1]$ 上的長度（Norm）。提示：長度平方 = $\\langle f, f \\rangle$。</li>
+                            </ol>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">1. 證明 $\\cos(mt)$ 與 $\\cos(nt)$ 正交 ($m \\neq n$)</h4>
+                            <p>我們需要計算內積：</p>
+                            <div class="math-block">$$I = \\int_{-\\pi}^{\\pi} \\cos(mt) \\cos(nt) \\, dt$$</div>
+                            <p>利用積化和差公式 $\\cos A \\cos B = \\frac{1}{2}[\\cos(A-B) + \\cos(A+B)]$：</p>
+                            <div class="math-block">$$I = \\frac{1}{2} \\int_{-\\pi}^{\\pi} [\\cos((m-n)t) + \\cos((m+n)t)] \\, dt$$</div>
+                            <p>分別積分：</p>
+                            <div class="math-block">$$I = \\frac{1}{2} \\left[ \\frac{\\sin((m-n)t)}{m-n} + \\frac{\\sin((m+n)t)}{m+n} \\right]_{-\\pi}^{\\pi}$$</div>
+                            <p>由於 $m, n$ 為整數且 $m \\neq n$，則 $(m-n)$ 與 $(m+n)$ 均為整數。</p>
+                            <p>我們知道對於任何整數 $k$，$\\sin(k\\pi) = 0$。</p>
+                            <p>因此，代入上下限 $\\pi$ 和 $-\\pi$ 後，所有項皆為 0。</p>
+                            <div class="math-block">$$I = 0$$</div>
+                            <p>得證，兩函數正交。</p>
+                            
+                            <h4 class="text-white font-bold mt-6">2. 計算 $f(t) = 1$ 在 $[0, 1]$ 上的長度</h4>
+                            <p>函數 $f$ 的長度（Norm）記為 $\\|f\\|$，定義為：</p>
+                            <div class="math-block">$$\\|f\\| = \\sqrt{\\langle f, f \\rangle}$$</div>
+                            <p>計算內積：</p>
+                            <div class="math-block">$$\\langle f, f \\rangle = \\int_{0}^{1} 1 \\cdot 1 \\, dt = \\int_{0}^{1} 1 \\, dt = [t]_0^1 = 1$$</div>
+                            <p>取平方根：</p>
+                            <div class="math-block">$$\\|f\\| = \\sqrt{1} = 1$$</div>
+                            <p>答案：$1$</p>
+                        </div>
+                        
+                        <div class="mt-8 p-4 border-t border-white/20">
+                            <p class="text-gray-400">如果這部分的正交概念清楚了，我們就可以在下一課直接引入歐拉公式，將這些 $\\sin$ 和 $\\cos$ 打包成更優雅的 $e^{int}$。</p>
+                        </div>
                     </div>`
             },
-            2: {
-                title: "從泰勒級數到傅立葉級數",
+2: {
+                title: "從泰勒級數到傅立葉級數 (Fourier Series)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>週期性函數的分解。從「多項式逼近」（Taylor）轉向「波動逼近」（Fourier）。</p>
-                        <h3>1. 三角形式的傅立葉級數</h3>
-                        <p>三角形式是最初步的表達。</p>
-                        <h3>2. 歐拉公式的引入</h3>
-                        <p>利用 $e^{ix} = \\cos x + i \\sin x$ 將級數簡化為複數指數形式：</p>
-                        <div class="math-block">$$f(t) = \\sum_{n=-\\infty}^{\\infty} c_n e^{in\\omega_0 t}$$</div>
-                        <h3>3. 收斂性討論</h3>
-                        <p>狄利克雷條件與吉布斯現象 (Gibbs Phenomenon)。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>複數平面幾何、均方收斂。</p></div>
+                        <p>這是有史以來最優雅的數學轉換之一。</p>
+                        <p>在第一課，我們學會了「函數是向量」以及「三角函數是正交基底」。</p>
+                        <p>現在，我們要利用這些基底來構建任意週期函數。這堂課的目標是從「繁瑣的實數三角函數」進化到「優雅的複數指數函數」。</p>
+
+                        <h3>1. 兩種逼近的哲學：泰勒 vs. 傅立葉</h3>
+                        <p>為什麼我們有了泰勒級數（Taylor Series），還需要傅立葉級數？</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>泰勒級數：</strong>使用多項式基底 $\\{1, x, x^2, x^3, \\dots\\}$。<br>
+                            <strong>哲學：</strong>它關注「一點及其鄰域」。只要知道某一點的各階導數，就能逼近附近的值。<br>
+                            <strong>缺點：</strong>對於遠離展開點的地方誤差巨大，且無法處理「斷裂」（不連續）的函數。</li>
+                            <li><strong>傅立葉級數：</strong>使用波動基底 $\\{1, \\cos t, \\sin t, \\cos 2t, \\sin 2t, \\dots\\}$。<br>
+                            <strong>哲學：</strong>它關注「整體與週期」。它嘗試用無窮多個震盪來拼湊出整個函數的全貌。<br>
+                            <strong>優點：</strong>可以完美處理週期函數，甚至是不連續的函數（如方波）。</li>
+                        </ul>
+
+                        <h3>2. 傳統形式：三角級數 (The Trigonometric Form)</h3>
+                        <p>對於一個週期為 $2\\pi$ 的函數 $f(t)$，我們可以寫成：</p>
+                        <div class="math-block">$$f(t) = \\frac{a_0}{2} + \\sum_{n=1}^{\\infty} [a_n \\cos(nt) + b_n \\sin(nt)]$$</div>
+                        <p>這裡的係數 $a_n, b_n$ 怎麼算？回想第一課的「投影」概念。我們要把 $f(t)$ 投影到 $\\cos(nt)$ 和 $\\sin(nt)$ 上。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>直流分量 (平均值)：</strong><br>$$a_0 = \\frac{1}{\\pi} \\int_{-\\pi}^{\\pi} f(t) \\, dt$$</li>
+                            <li><strong>餘弦分量：</strong><br>$$a_n = \\frac{1}{\\pi} \\int_{-\\pi}^{\\pi} f(t) \\cos(nt) \\, dt$$</li>
+                            <li><strong>正弦分量：</strong><br>$$b_n = \\frac{1}{\\pi} \\int_{-\\pi}^{\\pi} f(t) \\sin(nt) \\, dt$$</li>
+                        </ul>
+                        <p><strong>批判：</strong>這很繁瑣。我們要算三個積分，還要記住 $\\sin$ 和 $\\cos$ 的不同公式。有沒有更好的方法？</p>
+
+                        <h3>3. 核心武器：歐拉公式 (Euler's Formula)</h3>
+                        <p>這是數學界最著名的公式之一，它連接了三角函數與複數指數：</p>
+                        <div class="math-block">$$e^{ix} = \\cos x + i \\sin x$$</div>
+                        <p>這意味著：旋轉（複數指數）包含了震盪（正弦與餘弦）。</p>
+                        <p>反過來，我們可以用指數來表示三角函數：</p>
+                        <div class="math-block">$$\\cos x = \\frac{e^{ix} + e^{-ix}}{2}, \\quad \\sin x = \\frac{e^{ix} - e^{-ix}}{2i}$$</div>
+
+                        <h3>4. 現代形式：複數指數級數 (Complex Exponential Form)</h3>
+                        <p>利用歐拉公式，我們可以將上述繁雜的三角級數「統一」為一個極其簡潔的式子。</p>
+                        <p>我們不再將波看作上下震盪，而是看作在複數平面上的圓周運動。</p>
+                        <p><strong>傅立葉級數的現代形式：</strong></p>
+                        <div class="math-block">$$f(t) = \\sum_{n=-\\infty}^{\\infty} c_n e^{int}$$</div>
+                        <p>注意求和範圍變成了從 $-\\infty$ 到 $\\infty$（包含負頻率）。這裡的係數 $c_n$ 只有一個統一的公式（再次利用內積投影）：</p>
+                        <div class="math-block">$$c_n = \\frac{1}{2\\pi} \\int_{-\\pi}^{\\pi} f(t) e^{-int} \\, dt$$</div>
+                        <p>這個公式的美妙之處：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>統一性：</strong>不需要分開算 $a_0, a_n, b_n$。一個 $c_n$ 搞定所有。</li>
+                            <li><strong>幾何意義：</strong>$e^{-int}$ 代表順時針旋轉，$f(t) e^{-int}$ 的積分本質上是在計算 $f(t)$ 中含有多少頻率為 $n$ 的旋轉分量。</li>
+                        </ul>
+
+                        <h3>5. 收斂性與代價：吉布斯現象 (Gibbs Phenomenon)</h3>
+                        <p>傅立葉級數很強大，但不是完美的。</p>
+                        <p>當我們用連續的弦波去逼近一個不連續的訊號（例如方波的垂直邊緣）時，會發生什麼事？</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>狄利克雷條件 (Dirichlet Conditions)：</strong>只要函數滿足幾個溫和的條件（絕對可積、有限個極值點和不連續點），級數就會收斂。</li>
+                            <li><strong>吉布斯現象：</strong>在不連續點附近，級數會出現「過衝」（Overshoot），會有約 9% 的突起。無論你疊加多少項，這個突起都不會消失，只會變得更窄。這是用「平滑」去逼近「尖銳」必須付出的代價。</li>
+                        </ul>
+
+                        <h3>課後練習 (Calculus & Analysis)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：方波的複數傅立葉級數</h4>
+                            <p class="text-gray-300">為了熟悉複數形式的操作，請嘗試解決以下經典問題。</p>
+                            <p class="text-gray-300 mt-2">設有一週期為 $2\\pi$ 的方波函數 $f(t)$，定義如下：</p>
+                            <div class="math-block">
+                                $$f(t) = \\begin{cases} 
+                                -1, & -\\pi < t < 0 \\\\
+                                1, & 0 < t < \\pi 
+                                \\end{cases}$$
+                            </div>
+                            <p class="text-gray-300">請計算其複數傅立葉係數 $c_n$。</p>
+                            <p class="text-xs text-gray-500 mt-2">(提示：分別對兩段區間積分，注意 $n=0$ 的情況需單獨討論或觀察圖形。)</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">題目：計算方波 $f(t)$ 的複數傅立葉係數 $c_n$</h4>
+                            
+                            <p>根據定義公式：</p>
+                            <div class="math-block">$$c_n = \\frac{1}{2\\pi} \\int_{-\\pi}^{\\pi} f(t) e^{-int} \\, dt$$</div>
+
+                            <h4 class="text-white font-bold mt-4">步驟 1：處理 $n=0$ (直流分量)</h4>
+                            <div class="math-block">$$c_0 = \\frac{1}{2\\pi} \\int_{-\\pi}^{\\pi} f(t) \\, dt$$</div>
+                            <p>由於 $f(t)$ 是奇函數（正負面積抵銷），積分為 0。</p>
+                            <p>$$c_0 = 0$$</p>
+
+                            <h4 class="text-white font-bold mt-4">步驟 2：處理 $n \\neq 0$</h4>
+                            <p>將積分區間拆為兩段：</p>
+                            <div class="math-block">$$c_n = \\frac{1}{2\\pi} \\left[ \\int_{-\\pi}^{0} (-1) e^{-int} \\, dt + \\int_{0}^{\\pi} (1) e^{-int} \\, dt \\right]$$</div>
+                            <p>計算不定積分 $\\int e^{-int} dt = \\frac{e^{-int}}{-in}$：</p>
+                            <div class="math-block">
+                                $$c_n = \\frac{1}{2\\pi} \\left( - \\left[ \\frac{e^{-int}}{-in} \\right]_{-\\pi}^{0} + \\left[ \\frac{e^{-int}}{-in} \\right]_{0}^{\\pi} \\right)$$
+                            </div>
+                            <p>提取係數 $\\frac{1}{2\\pi (-in)} = \\frac{i}{2\\pi n}$ (注意 $1/(-i) = i$)：</p>
+                            <div class="math-block">
+                                $$c_n = \\frac{i}{2\\pi n} \\left( -[1 - e^{in\\pi}] + [e^{-in\\pi} - 1] \\right)$$
+                                $$c_n = \\frac{i}{2\\pi n} \\left( -1 + e^{in\\pi} + e^{-in\\pi} - 1 \\right)$$
+                                $$c_n = \\frac{i}{2\\pi n} \\left( e^{in\\pi} + e^{-in\\pi} - 2 \\right)$$
+                            </div>
+                            <p>我們知道 $e^{in\\pi} = \\cos(n\\pi) = (-1)^n$：</p>
+                            <div class="math-block">
+                                $$c_n = \\frac{i}{2\\pi n} \\left( (-1)^n + (-1)^n - 2 \\right)$$
+                                $$c_n = \\frac{i}{2\\pi n} ( 2(-1)^n - 2 )$$
+                                $$c_n = \\frac{i}{\\pi n} ( (-1)^n - 1 )$$
+                            </div>
+
+                            <h4 class="text-white font-bold mt-4">步驟 3：分析結果</h4>
+                            <ul class="list-disc pl-6 text-gray-300 mb-4">
+                                <li>當 $n$ 為偶數時， $(-1)^n = 1$，則 $c_n = 0$。</li>
+                                <li>當 $n$ 為奇數時， $(-1)^n = -1$，則 $c_n = \\frac{i}{\\pi n} (-2) = \\frac{-2i}{n\\pi}$。</li>
+                            </ul>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <div class="math-block">
+                                    $$c_n = \\begin{cases} 
+                                    0, & n \\text{ 為偶數} \\\\
+                                    \\frac{-2i}{n\\pi}, & n \\text{ 為奇數}
+                                    \\end{cases}$$
+                                </div>
+                            </div>
+                        </div>
                     </div>`
             },
-            3: {
+3: {
                 title: "連續傅立葉變換 (CFT)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>處理「非週期」訊號。將週期 $T$ 推向無窮大。</p>
-                        <h3>1. 傅立葉積分</h3>
-                        <p>頻譜從「離散」變為「連續」。</p>
-                        <h3>2. 變換對定義</h3>
-                        <div class="math-block">$$\\mathcal{F}\\{f(t)\\} = F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} dt$$</div>
-                        <h3>3. 對偶性 (Duality)</h3>
-                        <p>時域與頻域的對稱之美（矩形波 $\\leftrightarrow$ Sinc 函數）。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>積分變換、黎曼-勒貝格引理。</p></div>
+                        <p>這是一次觀念上的巨大飛躍。</p>
+                        <p>在前兩課，我們處理的都是「週期函數」——那些在時間軸上不斷重複的波形。</p>
+                        <p>但現實世界中，大多數訊號是非週期的：一聲槍響、一次股票崩盤、一句話。這些訊號發生一次就消失了。我們如何用「永遠震盪」的正弦波，來表示「瞬間消失」的訊號？</p>
+                        <p><strong>答案是：將週期推向無窮大。</strong></p>
+
+                        <h3>1. 哲學推導：從籠中鳥到自由鳥</h3>
+                        <p>想像一個週期為 $T$ 的方波。當 $T$ 很小時，波形緊密重複。頻譜是稀疏的（只有基頻 $\\omega_0$ 的整數倍）。</p>
+                        <p>當我們把週期 $T$ 拉大，波形之間的間隔變大。頻譜線會發生什麼事？它們會變得越來越密集。</p>
+                        <p>當 $T \\to \\infty$ 時，單個波形變成了孤立的脈衝。此時，頻譜線之間的距離 $\\Delta \\omega = \\frac{2\\pi}{T}$ 趨近於 0。</p>
+                        <div class="highlight">
+                            <p><strong>離散的頻譜線融化成了連續的頻譜曲線。</strong></p>
+                        </div>
+
+                        <h3>2. 定義：連續傅立葉變換</h3>
+                        <p>我們不再求和（Summation），而是積分（Integration）。係數 $c_n$ 變成了函數 $F(\\omega)$。</p>
+                        <p>這就是大名鼎鼎的傅立葉變換對：</p>
+                        
+                        <p><strong>(1) 傅立葉變換 (分析 Analysis)</strong></p>
+                        <p>將時間訊號分解為頻率成分：</p>
+                        <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} \\, dt$$</div>
+                        <p><strong>意義：</strong>$F(\\omega)$ 不再代表某個頻率的「振幅」，而是代表該頻率處的<strong>頻譜密度 (Spectral Density)</strong>。</p>
+
+                        <p><strong>(2) 傅立葉反變換 (合成 Synthesis)</strong></p>
+                        <p>將頻率成分重組回時間訊號：</p>
+                        <div class="math-block">$$f(t) = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} F(\\omega) e^{i\\omega t} \\, d\\omega$$</div>
+                        <p><strong>意義：</strong>我們需要積分（加總）所有可能的頻率 $\\omega$，才能還原出原本的訊號。前面的 $\\frac{1}{2\\pi}$ 是為了平衡 $d\\omega$ 帶來的係數差異。</p>
+
+                        <h3>3. 關鍵性質：對偶性 (Duality)</h3>
+                        <p>仔細看上面兩個公式，它們驚人地相似。這暗示了時域和頻域的地位是對等的。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>如果在時域是一個窄脈衝（短暫的訊號），在頻域就會是一個寬頻譜（需要很多頻率才能合成它）。</li>
+                            <li>如果在時域是一個無限長的弦波（單一頻率），在頻域就會是一個窄脈衝。</li>
+                        </ul>
+                        <p><strong>直觀法則：</strong>時域越集中，頻域越發散；時域越發散，頻域越集中。這就是後來海森堡不確定性原理的數學根源。</p>
+
+                        <h3>4. 重要範例：矩形波 (Rect) 與 Sinc 函數</h3>
+                        <p>考慮一個最簡單的非週期訊號：矩形脈衝（門函數）。</p>
+                        <div class="math-block">
+                            $$\\text{rect}(t) = \\begin{cases} 
+                            1, & |t| < 0.5 \\\\
+                            0, & |t| > 0.5 
+                            \\end{cases}$$
+                        </div>
+                        <p>它的傅立葉變換結果是著名的 <strong>Sinc 函數</strong> ($\\frac{\\sin x}{x}$)。</p>
+                        <p>這個結果告訴我們：一個邊緣銳利的方形波，包含了所有頻率，而且高頻分量衰減得很慢。這就是為什麼數位訊號中的方波很容易產生雜訊干擾的原因。</p>
+
+                        <h3>課後練習 (Calculus Problem)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：單邊指數函數的傅立葉變換</h4>
+                            <p class="text-gray-300">設函數 $f(t)$ 定義為：</p>
+                            <div class="math-block">$$f(t) = e^{-at} u(t)$$</div>
+                            <p class="text-gray-300">其中 $a > 0$ 為常數，$u(t)$ 為單位階躍函數（$t \\ge 0$ 時為 1，否則為 0）。</p>
+                            <p class="text-gray-300">請計算其傅立葉變換 $F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} \\, dt$。</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">題目：計算 $f(t) = e^{-at} u(t)$ 的傅立葉變換 ($a>0$)</h4>
+                            
+                            <p><strong>1. 設定積分</strong></p>
+                            <p>根據定義，因為 $u(t)$ 在 $t<0$ 時為 0，積分下限變為 0：</p>
+                            <div class="math-block">$$F(\\omega) = \\int_{0}^{\\infty} e^{-at} e^{-i\\omega t} \\, dt$$</div>
+                            <p>合併指數項：</p>
+                            <div class="math-block">$$F(\\omega) = \\int_{0}^{\\infty} e^{-(a + i\\omega)t} \\, dt$$</div>
+
+                            <p><strong>2. 計算瑕積分</strong></p>
+                            <div class="math-block">$$F(\\omega) = \\left[ \\frac{e^{-(a + i\\omega)t}}{-(a + i\\omega)} \\right]_{0}^{\\infty}$$</div>
+                            
+                            <p><strong>3. 分析上下限</strong></p>
+                            <ul class="list-disc pl-6 text-gray-300 mb-4">
+                                <li><strong>上限 ($t \\to \\infty$)：</strong><br> $|e^{-(a + i\\omega)t}| = |e^{-at} \\cdot e^{-i\\omega t}| = e^{-at}$。<br>因為題目給定 $a > 0$，當 $t \\to \\infty$ 時，$e^{-at} \\to 0$。所以上限值為 0。</li>
+                                <li><strong>下限 ($t = 0$)：</strong><br> $e^{-(a + i\\omega)0} = e^0 = 1$。</li>
+                            </ul>
+
+                            <p><strong>4. 代入計算</strong></p>
+                            <div class="math-block">$$F(\\omega) = 0 - \\frac{1}{-(a + i\\omega)} = \\frac{1}{a + i\\omega}$$</div>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <div class="math-block">$$F(\\omega) = \\frac{1}{a + i\\omega}$$</div>
+                            </div>
+                            <p class="text-xs text-gray-400">註：這是一個複數函數。其大小 $|F(\\omega)| = \\frac{1}{\\sqrt{a^2 + \\omega^2}}$ 呈現洛倫茲分佈/鐘形曲線，代表低頻成分強，高頻成分隨 $\\omega$ 增加而衰減。</p>
+                        </div>
                     </div>`
             },
-            4: {
-                title: "卷積定理與系統理論",
+4: {
+                title: "卷積定理與系統理論 (Convolution & LTI Systems)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>為什麼「時域卷積」等於「頻域相乘」？</p>
-                        <h3>1. 卷積 (Convolution) 的物理意義</h3>
-                        <p>翻轉、平移、積分。描述系統對輸入的響應。</p>
-                        <h3>2. 線性非時變系統 (LTI)</h3>
-                        <p>輸出等於輸入與脈衝響應的卷積。</p>
-                        <h3>3. 卷積定理</h3>
-                        <div class="math-block">$$\\mathcal{F}\\{f(t) * g(t)\\} = F(\\omega) \\cdot G(\\omega)$$</div>
-                        <p>利用卷積定理求解微分方程。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>格林函數 (Green's Function)。</p></div>
+                        <h3>1. 什麼是「卷積」 (Convolution)？</h3>
+                        <p>在數學上，卷積是一種運算，將兩個函數 $f(t)$ 和 $g(t)$ 結合產生第三個函數。符號記作 $f * g$。</p>
+                        <p>定義如下：</p>
+                        <div class="math-block">$$(f * g)(t) = \\int_{-\\infty}^{\\infty} f(\\tau) g(t - \\tau) \\, d\\tau$$</div>
+                        <p>這個公式看起來有點可怕，讓我們拆解它的物理動作：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>翻轉 (Flip)：</strong>將 $g(\\tau)$ 變成 $g(-\\tau)$。</li>
+                            <li><strong>平移 (Shift)：</strong>將翻轉後的函數向右移動 $t$，變成 $g(t-\\tau)$。</li>
+                            <li><strong>乘積 (Multiply)：</strong>將 $f(\\tau)$ 與平移後的 $g$ 相乘。</li>
+                            <li><strong>積分 (Integrate)：</strong>計算重疊區域的面積。</li>
+                        </ul>
+                        <p><strong>直觀理解：</strong></p>
+                        <p>想像你在打耳光。$f(\\tau)$ 是你打耳光的力道序列，$g(t)$ 是臉被打之後的紅腫消退過程（系統反應）。</p>
+                        <p>當你連續打耳光時，此刻臉的紅腫程度，是你過去所有耳光造成的殘留紅腫的總和。這就是卷積：<strong>過去所有輸入對現在的累積影響。</strong></p>
+
+                        <h3>2. 卷積定理 (The Convolution Theorem)</h3>
+                        <p>直接計算上面的積分通常非常痛苦。但傅立葉變換給了我們一個奇蹟般的捷徑。</p>
+                        <div class="highlight">
+                            <p><strong>定理：</strong>時域中的卷積，等於頻域中的乘積。</p>
+                            <div class="math-block">$$\\mathcal{F}\\{ (f * g)(t) \\} = F(\\omega) \\cdot G(\\omega)$$</div>
+                        </div>
+                        <p><strong>哲學意義：</strong>這解釋了為什麼我們要進入頻域。在時域中複雜糾纏的「卷積運算」（微積分），在頻域中變成了單純的「乘法運算」（代數）。這讓微分方程的求解變得像國中代數一樣簡單。</p>
+
+                        <h3>3. LTI 系統與脈衝響應 (Impulse Response)</h3>
+                        <p>這套理論主要應用於線性非時變系統 (Linear Time-Invariant Systems, LTI)。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>脈衝響應 $h(t)$：</strong>如果我們給系統一個瞬間的衝擊（狄拉克 $\\delta$ 函數），系統的反應稱為 $h(t)$。</li>
+                            <li><strong>任意輸入的反應：</strong>如果我們知道了系統對 $\\delta(t)$ 的反應是 $h(t)$，那麼根據線性疊加原理，系統對任何輸入 $x(t)$ 的反應 $y(t)$ 就是輸入與 $h(t)$ 的卷積：
+                            <div class="math-block">$$y(t) = x(t) * h(t)$$</div>
+                            </li>
+                        </ul>
+
+                        <h3>4. 頻率響應 (Frequency Response)</h3>
+                        <p>利用卷積定理，我們可以將上面的式子轉到頻域：</p>
+                        <div class="math-block">$$Y(\\omega) = X(\\omega) \\cdot H(\\omega)$$</div>
+                        <p>這裡的 $H(\\omega)$ 就是 $h(t)$ 的傅立葉變換，稱為頻率響應。</p>
+                        <p>這讓我們可以設計「濾波器」：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>想濾掉高頻雜訊？只要讓 $H(\\omega)$ 在高頻時為 0。</li>
+                            <li>想增強低音？只要讓 $H(\\omega)$ 在低頻時變大。</li>
+                        </ul>
+                        <p>我們只需要設計 $H(\\omega)$（乘法），而不需要去解複雜的微分方程（卷積）。</p>
+
+                        <h3>課後練習 (Calculus Problem)</h3>
+                        <p>我們來親自操作一次「卷積」的積分，體驗它的幾何意義，這樣你會更感謝傅立葉變換帶來的簡化。</p>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：矩形波的自卷積</h4>
+                            <p class="text-gray-300">設有一矩形脈衝函數 (Gate function) $f(t)$ 定義如下：</p>
+                            <div class="math-block">
+                                $$f(t) = \\begin{cases} 
+                                1, & -0.5 \\le t \\le 0.5 \\\\
+                                0, & \\text{其他}
+                                \\end{cases}$$
+                            </div>
+                            <p class="text-gray-300">請計算 $y(t) = (f * f)(t)$ 的解析式，並描述其圖形形狀。</p>
+                            <p class="text-xs text-gray-500 mt-2">(提示：這涉及「分段積分」，你需要根據兩個方塊重疊的程度來劃分 $t$ 的區間。)</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">題目：計算矩形波 $f(t)$ 的自卷積 $y(t) = f(t) * f(t)$</h4>
+                            
+                            <p><strong>1. 設定積分式</strong></p>
+                            <p>根據定義：$$y(t) = \\int_{-\\infty}^{\\infty} f(\\tau) f(t - \\tau) \\, d\\tau$$</p>
+                            <p>由於 $f(\\tau)$ 僅在 $[-0.5, 0.5]$ 為 1，積分範圍縮小為：</p>
+                            <div class="math-block">$$y(t) = \\int_{-0.5}^{0.5} 1 \\cdot f(t - \\tau) \\, d\\tau$$</div>
+                            <p>這裡的被積函數 $f(t-\\tau)$ 代表一個中心在 $t$、寬度為 1 的矩形窗（範圍是 $[t-0.5, t+0.5]$）。我們需要計算這兩個區間 $[-0.5, 0.5]$ 和 $[t-0.5, t+0.5]$ 的重疊長度。</p>
+
+                            <p class="mt-4"><strong>2. 分段討論</strong></p>
+                            <p>我們移動 $t$ 來觀察重疊情況：</p>
+                            
+                            <ul class="list-disc pl-6 text-gray-300 space-y-2">
+                                <li><strong>情況 A：完全不重疊 ($t < -1$)</strong><br>
+                                區間 $[t-0.5, t+0.5]$ 完全在 $[-0.5, 0.5]$ 的左邊。<br>
+                                重疊長度 = 0。<br>
+                                $$y(t) = 0$$</li>
+
+                                <li><strong>情況 B：部分重疊，進入階段 ($-1 \\le t < 0$)</strong><br>
+                                右邊界 $t+0.5$ 進入了 $[-0.5, 0.5]$，但左邊界還在外面。<br>
+                                重疊區間為 $[-0.5, t+0.5]$。<br>
+                                $$y(t) = \\int_{-0.5}^{t+0.5} 1 \\, d\\tau = (t+0.5) - (-0.5) = t + 1$$</li>
+
+                                <li><strong>情況 C：部分重疊，離開階段 ($0 \\le t < 1$)</strong><br>
+                                右邊界 $t+0.5$ 已經超出了 $0.5$，左邊界 $t-0.5$ 進入了 $[-0.5, 0.5]$。<br>
+                                重疊區間為 $[t-0.5, 0.5]$。<br>
+                                $$y(t) = \\int_{t-0.5}^{0.5} 1 \\, d\\tau = 0.5 - (t-0.5) = 1 - t$$</li>
+
+                                <li><strong>情況 D：完全不重疊 ($t \\ge 1$)</strong><br>
+                                區間 $[t-0.5, t+0.5]$ 完全在 $[-0.5, 0.5]$ 的右邊。<br>
+                                重疊長度 = 0。<br>
+                                $$y(t) = 0$$</li>
+                            </ul>
+
+                            <p class="mt-4"><strong>3. 結論</strong></p>
+                            <div class="math-block">
+                                $$y(t) = \\begin{cases} 
+                                t + 1, & -1 \\le t < 0 \\\\
+                                1 - t, & 0 \\le t < 1 \\\\
+                                0, & \\text{其他}
+                                \\end{cases}$$
+                            </div>
+                            <p>或者寫成精簡形式：</p>
+                            <div class="math-block">$$y(t) = \\max(0, 1 - |t|)$$</div>
+                            
+                            <p class="mt-4 text-white font-bold">圖形描述：</p>
+                            <p>這是一個三角形函數 (Triangle Function)。兩個矩形波卷積，會產生一個三角形波。這展示了卷積具有「平滑化」訊號的效果（從不連續的方波變成了連續的三角波）。</p>
+                        </div>
                     </div>`
             },
-            5: {
-                title: "能量守恆與廣義函數",
+5: {
+                title: "能量守恆與廣義函數 (Energy & Distributions)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>處理數學上「不乖」的函數。</p>
-                        <h3>1. 帕塞瓦爾定理</h3>
-                        <div class="math-block">$$\\int_{-\\infty}^{\\infty} |f(t)|^2 dt = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} |F(\\omega)|^2 d\\omega$$</div>
-                        <p>能量守恆的數學表達。</p>
-                        <h3>2. 狄拉克 $\\delta$ 函數</h3>
-                        <p>它不是函數，是分佈。用於廣義傅立葉變換。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>廣義函數論、Plancherel 定理。</p></div>
+                        <p>這堂課是數學分析上的「走鋼索」。</p>
+                        <p>在前幾課，我們偷偷迴避了一些尷尬的問題。例如：$\\cos(t)$ 的傅立葉變換是什麼？</p>
+                        <p>如果你直接把 $\\cos(t)$ 代入積分公式 $\\int_{-\\infty}^{\\infty} \\cos(t) e^{-i\\omega t} dt$，你會發現積分不收斂（它永遠震盪，面積無法計算）。</p>
+                        <p>為了處理這些物理上真實存在、但數學上「不乖」的訊號，我們需要引入一個強大的工具——廣義函數（Distributions），以及一個物理鐵律——能量守恆。</p>
+
+                        <h3>1. 帕塞瓦爾定理 (Parseval's Theorem)</h3>
+                        <p>這是傅立葉變換中最令人安心的定理。它告訴我們：無論你在哪個宇宙（時域或頻域），總能量是不變的。</p>
+                        <p>對於訊號 $f(t)$，其總能量 $E$ 定義為振幅平方的積分：</p>
+                        <div class="math-block">$$E = \\int_{-\\infty}^{\\infty} |f(t)|^2 \\, dt$$</div>
+                        <p><strong>定理敘述：</strong>時域的能量積分等於頻域的能量積分（差一個係數 $1/2\\pi$）：</p>
+                        <div class="math-block">$$\\int_{-\\infty}^{\\infty} |f(t)|^2 \\, dt = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} |F(\\omega)|^2 \\, d\\omega$$</div>
+                        <p><strong>哲學意義：</strong>訊號的「本體」在變換過程中沒有損失。這給了我們計算複雜積分的捷徑。有時候 $\\int f(t)^2$ 很難算，但它的頻譜 $F(\\omega)$ 是一個簡單的矩形，算 $\\int F(\\omega)^2$ 就秒殺了。</p>
+
+                        <h3>2. 數學怪獸：狄拉克 $\\delta$ 函數 (Dirac Delta Function)</h3>
+                        <p>為了解決 $\\cos(t)$ 或常數 $1$ 的積分發散問題，物理學家狄拉克（Paul Dirac）發明了一個奇特的對象 $\\delta(t)$。</p>
+                        <p><strong>直觀定義：</strong>一個寬度為 0，高度為 $\\infty$，但總面積為 1 的脈衝。</p>
+                        <div class="math-block">$$ \\delta(t) = \\begin{cases} \\infty, & t = 0 \\\\ 0, & t \\neq 0 \\end{cases}, \\quad \\int_{-\\infty}^{\\infty} \\delta(t) \\, dt = 1$$</div>
+                        <p><strong>篩選性質 (Sifting Property)：</strong> $\\delta(t)$ 像一支探針。當它與函數 $f(t)$ 相乘並積分時，它會「抓出」 $t=0$ 處的值：</p>
+                        <div class="math-block">$$\\int_{-\\infty}^{\\infty} f(t) \\delta(t) \\, dt = f(0)$$</div>
+                        <p>更一般地：</p>
+                        <div class="math-block">$$\\int_{-\\infty}^{\\infty} f(t) \\delta(t - t_0) \\, dt = f(t_0)$$</div>
+                        <p>嚴格來說：它不是一個函數，而是一個「分佈」或「廣義函數」。它只有在積分號裡面才有意義。</p>
+
+                        <h3>3. 廣義傅立葉變換</h3>
+                        <p>有了 $\\delta$ 函數，我們終於可以處理那些原本積分發散的訊號了。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>(1) 脈衝的變換：</strong>如果 $f(t) = \\delta(t)$（時域極度集中）：
+                                <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} \\delta(t) e^{-i\\omega t} \\, dt = e^{-i\\omega \\cdot 0} = 1$$</div>
+                                <strong>結論：</strong>頻譜是常數 $1$。一個瞬間的脈衝包含了所有頻率，且強度相等。（這就是為什麼音響測試要用脈衝音，或者拍手聲）。
+                            </li>
+                            <li><strong>(2) 常數的變換：</strong>如果 $f(t) = 1$（時域完全不變）：利用對偶性，其頻譜必然是 $\\delta$ 函數。
+                                <div class="math-block">$$F(\\omega) = 2\\pi \\delta(\\omega)$$</div>
+                                <strong>結論：</strong>能量完全集中在 $\\omega = 0$（直流電）。
+                            </li>
+                            <li><strong>(3) 週期函數的變換：</strong>現在我們可以回答 $\\cos(\\omega_0 t)$ 的變換是什麼了。根據歐拉公式 $\\cos(\\omega_0 t) = \\frac{e^{i\\omega_0 t} + e^{-i\\omega_0 t}}{2}$。利用位移性質，複數指數 $e^{i\\omega_0 t}$ 的傅立葉變換是 $2\\pi \\delta(\\omega - \\omega_0)$。所以：
+                                <div class="math-block">$$\\mathcal{F}\\{\\cos(\\omega_0 t)\\} = \\pi [\\delta(\\omega - \\omega_0) + \\delta(\\omega + \\omega_0)]$$</div>
+                                <strong>幾何意義：</strong>餘弦波在頻譜上就是兩根柱子，分別位於 $\\pm \\omega_0$。這將「傅立葉級數」（離散頻譜）與「傅立葉變換」（連續頻譜）統一起來了——級數其實就是變換在頻域上的 $\\delta$ 函數陣列。
+                            </li>
+                        </ul>
+
+                        <h3>課後練習 (Calculus Problem)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：利用能量守恆計算 Sinc 函數的積分</h4>
+                            <p class="text-gray-300">這題是帕塞瓦爾定理的經典應用。如果直接用微積分計算左式極為困難，但利用能量守恆，轉到頻域去算矩形面積則易如反掌。</p>
+                            <p class="text-gray-300 mt-2">請利用帕塞瓦爾定理，計算下列定積分的值：</p>
+                            <div class="math-block">$$I = \\int_{-\\infty}^{\\infty} \\left( \\frac{\\sin t}{t} \\right)^2 \\, dt$$</div>
+                            <p class="text-xs text-gray-500 mt-2">(提示：回想第 3 課，矩形波 $\\text{rect}(t)$ 的傅立葉變換是 Sinc 形式。你可以反過來設 $f(t)$ 或 $F(\\omega)$ 為矩形波來構造這個等式。)</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">1. 策略分析</h4>
+                            <p>直接積分 $\\frac{\\sin^2 t}{t^2}$ 需要複雜的複變殘值定理或微分技巧。</p>
+                            <p>利用帕塞瓦爾定理：$\\int |f(t)|^2 dt = \\frac{1}{2\\pi} \\int |F(\\omega)|^2 d\\omega$。</p>
+                            <p>我們需要找到一個函數，其變換對的一端是 $\\frac{\\sin t}{t}$ (Sinc 函數)，另一端是簡單的幾何圖形（如矩形）。</p>
+
+                            <h4 class="text-white font-bold mt-4">2. 建立變換對</h4>
+                            <p>回憶第 3 課的矩形波。讓我們定義一個頻域的矩形窗函數（低通濾波器）：</p>
+                            <p>設 $X(\\omega)$ 為一個矩形函數：</p>
+                            <div class="math-block">$$X(\\omega) = \\begin{cases} 1, & |\\omega| < 1 \\\\ 0, & |\\omega| > 1 \\end{cases}$$</div>
+                            <p>求其逆傅立葉變換 $x(t)$：</p>
+                            <div class="math-block">
+                                $$x(t) = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} X(\\omega) e^{i\\omega t} \\, d\\omega = \\frac{1}{2\\pi} \\int_{-1}^{1} 1 \\cdot e^{i\\omega t} \\, d\\omega$$
+                                $$x(t) = \\frac{1}{2\\pi} \\left[ \\frac{e^{i\\omega t}}{it} \\right]_{-1}^{1} = \\frac{1}{2\\pi it} (e^{it} - e^{-it})$$
+                            </div>
+                            <p>利用 $\\sin t = \\frac{e^{it} - e^{-it}}{2i}$：</p>
+                            <div class="math-block">$$x(t) = \\frac{1}{\\pi t} \\sin t = \\frac{\\sin t}{\\pi t}$$</div>
+
+                            <h4 class="text-white font-bold mt-4">3. 應用帕塞瓦爾定理</h4>
+                            <p>現在我們有了變換對：$x(t) = \\frac{\\sin t}{\\pi t} \\iff X(\\omega) = \\text{rect}(\\frac{\\omega}{2})$</p>
+                            <p>帕塞瓦爾定理公式：</p>
+                            <div class="math-block">$$\\int_{-\\infty}^{\\infty} |x(t)|^2 \\, dt = \\frac{1}{2\\pi} \\int_{-\\infty}^{\\infty} |X(\\omega)|^2 \\, d\\omega$$</div>
+                            <p>代入我們的函數：</p>
+                            <div class="math-block">$$\\int_{-\\infty}^{\\infty} \\left| \\frac{\\sin t}{\\pi t} \\right|^2 \\, dt = \\frac{1}{2\\pi} \\int_{-1}^{1} |1|^2 \\, d\\omega$$</div>
+
+                            <h4 class="text-white font-bold mt-4">4. 計算</h4>
+                            <p>左式（提出常數 $\\frac{1}{\\pi^2}$）：</p>
+                            <div class="math-block">$$\\frac{1}{\\pi^2} \\int_{-\\infty}^{\\infty} \\frac{\\sin^2 t}{t^2} \\, dt$$</div>
+                            <p>右式（簡單的矩形面積）：</p>
+                            <div class="math-block">$$\\frac{1}{2\\pi} \\times (\\text{區間長度 } 2) = \\frac{1}{2\\pi} \\times 2 = \\frac{1}{\\pi}$$</div>
+                            <p>讓兩邊相等：</p>
+                            <div class="math-block">$$\\frac{1}{\\pi^2} I = \\frac{1}{\\pi}$$</div>
+                            <p>解出 $I$：</p>
+                            <div class="math-block">$$I = \\frac{1}{\\pi} \\times \\pi^2 = \\pi$$</div>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <div class="math-block">$$\\int_{-\\infty}^{\\infty} \\left( \\frac{\\sin t}{t} \\right)^2 \\, dt = \\pi$$</div>
+                            </div>
+                        </div>
                     </div>`
             },
-            6: {
-                title: "取樣定理與離散化",
+6: {
+                title: "取樣定理與離散化 (The Sampling Theorem)",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>從類比通往數位的橋樑。</p>
-                        <h3>1. 狄拉克梳狀函數</h3>
-                        <p>取樣即乘上一串脈衝。</p>
-                        <h3>2. 奈奎斯特-香農取樣定理</h3>
-                        <div class="math-block">$$f_s > 2 f_{\\max}$$</div>
-                        <p>取樣頻率必須大於兩倍最高頻率。</p>
-                        <h3>3. 混疊現象 (Aliasing)</h3>
-                        <p>頻率的「偽裝」與濾波。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>頻譜複製、帶限訊號。</p></div>
+                        <p>這堂課是通往「數位世界」的大門。</p>
+                        <p>在前五課，我們的數學都發生在完美的連續世界（Continuous World）。所有的函數 $f(t)$ 對於任意微小的 $t$ 都有定義。</p>
+                        <p>但在電腦科學與現代工程中，我們無法儲存無限的資訊。我們必須取樣（Sampling）。這堂課將揭示：當我們把連續訊號切成碎片時，頻譜發生了什麼劇變？</p>
+
+                        <h3>1. 數學工具：狄拉克梳狀函數 (Dirac Comb)</h3>
+                        <p>我們如何用數學描述「每隔 $T$ 秒拍一張照片」這個動作？</p>
+                        <p>我們使用一連串的 $\\delta$ 脈衝，排成像梳子一樣的形狀，稱為脈衝列或狄拉克梳狀函數 $s(t)$：</p>
+                        <div class="math-block">$$s(t) = \\sum_{n=-\\infty}^{\\infty} \\delta(t - nT)$$</div>
+                        <p><strong>取樣操作：</strong>將原本連續的訊號 $x(t)$ 與這把梳子相乘。根據篩選性質，結果 $x_s(t)$ 只保留了 $t = nT$ 時刻的數值，其他地方都是 0。</p>
+                        <div class="math-block">$$x_s(t) = x(t) \\cdot s(t) = \\sum_{n=-\\infty}^{\\infty} x(nT) \\delta(t - nT)$$</div>
+
+                        <h3>2. 頻譜複製 (Spectral Replication)</h3>
+                        <p>這是傅立葉變換最神奇的時刻之一。我們想知道取樣後的訊號 $x_s(t)$ 在頻域長什麼樣？</p>
+                        <p>利用第 4 課的卷積定理：時域的乘積等於頻域的卷積。</p>
+                        <div class="math-block">$$\\mathcal{F}\\{x(t) \\cdot s(t)\\} = \\frac{1}{2\\pi} X(\\omega) * S(\\omega)$$</div>
+                        <p>關鍵在於：梳狀函數的傅立葉變換，還是一把梳狀函數！（週期互為倒數）</p>
+                        <div class="math-block">$$S(\\omega) = \\frac{2\\pi}{T} \\sum_{k=-\\infty}^{\\infty} \\delta\\left(\\omega - k \\frac{2\\pi}{T}\\right)$$</div>
+                        <p>將 $X(\\omega)$ 與這把頻域梳子做卷積，效果就是把 $X(\\omega)$ 的圖形複製並平移到每一個梳齒的位置上。</p>
+                        <div class="math-block">$$X_s(\\omega) = \\frac{1}{T} \\sum_{k=-\\infty}^{\\infty} X(\\omega - k \\omega_s)$$</div>
+                        <p>(其中 $\\omega_s = \\frac{2\\pi}{T}$ 為取樣角頻率)</p>
+                        <div class="highlight">
+                            <p><strong>結論：取樣導致頻譜週期性複製。</strong></p>
+                            <p>這是數位訊號處理最核心的圖像。原本只有一個波峰的頻譜，現在變成了無窮多個排列在一起的波峰。</p>
+                        </div>
+
+                        <h3>3. 奈奎斯特-香農取樣定理</h3>
+                        <p>災難的根源就在「複製」。如果原始頻譜 $X(\\omega)$ 太寬，或者取樣頻率 $\\omega_s$ 太低（梳齒間隔太窄），那麼複製出來的頻譜波峰就會互相重疊（Overlap）。</p>
+                        <p>這就是<strong>混疊 (Aliasing)</strong>。一旦重疊，高頻資訊就會污染低頻資訊，我們就再也無法把原始訊號分開了。</p>
+                        <p>為了避免重疊，複製中心點的距離 $\\omega_s$ 必須大於頻譜寬度 $2\\omega_{max}$。</p>
+                        <p>這就是著名的奈奎斯特條件：</p>
+                        <div class="math-block">$$f_s > 2 f_{max}$$</div>
+                        <p>(取樣頻率必須大於訊號最高頻率的兩倍)</p>
+
+                        <h3>4. 重建：理想重建公式</h3>
+                        <p>如果滿足了奈奎斯特條件，頻譜沒有重疊，我們如何變回原本的連續訊號？</p>
+                        <p>只要在頻域乘上一個理想低通濾波器（矩形窗），把多餘的複製品切掉，只保留中間原本的 $X(\\omega)$。</p>
+                        <p>回想第 3 課：頻域的矩形乘法 = 時域的 Sinc 函數卷積。這導出了完美的重建公式：</p>
+                        <div class="math-block">$$x(t) = \\sum_{n=-\\infty}^{\\infty} x[n] \\cdot \\text{sinc}\\left( \\frac{t - nT}{T} \\right)$$</div>
+                        <p>這在哲學上很驚人：只要取樣夠快，透過 Sinc 函數插值，我們可以毫無誤差地猜出取樣點之間原本是什麼樣子。</p>
+
+                        <h3>課後練習 (Signal Analysis)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：正弦波的混疊頻率</h4>
+                            <p class="text-gray-300">混疊現象最直觀的例子就是「車輪效應」（影片中的車輪看起來在倒轉）。我們來算一下這個數學現象。</p>
+                            <p class="text-gray-300 mt-2">假設有一個連續弦波訊號：</p>
+                            <div class="math-block">$$x(t) = \\cos(2\\pi \\cdot 100 t)$$</div>
+                            <p class="text-gray-300">這代表它的真實頻率為 $f = 100 \\text{ Hz}$。</p>
+                            <p class="text-gray-300">現在我們使用取樣頻率 $f_s = 150 \\text{ Hz}$ 對其進行取樣。</p>
+                            <ol class="list-decimal pl-6 text-gray-300 mt-2">
+                                <li>請問此取樣頻率是否滿足奈奎斯特條件？</li>
+                                <li>取樣後的離散訊號，在人耳聽起來（或重建後）會變成多少 Hz 的低頻訊號（即混疊頻率 $f_a$）？</li>
+                            </ol>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">1. 檢查奈奎斯特條件</h4>
+                            <p>奈奎斯特頻率（Nyquist Frequency）為取樣率的一半：</p>
+                            <div class="math-block">$$f_{Nyquist} = \\frac{f_s}{2} = \\frac{150}{2} = 75 \\text{ Hz}$$</div>
+                            <p>原始訊號頻率 $f = 100 \\text{ Hz}$。</p>
+                            <p>因為 $100 > 75$，即 $f > f_s/2$，所以<strong>不滿足</strong>奈奎斯特條件。</p>
+                            <p>結論：會發生混疊（Aliasing）。</p>
+
+                            <h4 class="text-white font-bold mt-4">2. 計算混疊頻率</h4>
+                            <p>在頻域中，取樣造成頻譜以 $f_s$ 為週期進行複製。</p>
+                            <ul class="list-disc pl-6 text-gray-300 mb-2">
+                                <li>原始頻譜位於 $\\pm 100$ Hz。</li>
+                                <li>複製後的頻譜中心位於 $0, \\pm 150, \\pm 300, \\dots$ Hz。</li>
+                            </ul>
+                            <p>讓我們看原本位於 $-100$ Hz 的那個分量（負頻率）。它被複製平移了 $+f_s (+150)$ Hz：</p>
+                            <div class="math-block">$$-100 + 150 = 50 \\text{ Hz}$$</div>
+                            <p>或者看原本位於 $+100$ Hz 的分量。它被複製平移了 $-f_s (-150)$ Hz：</p>
+                            <div class="math-block">$$100 - 150 = -50 \\text{ Hz}$$</div>
+                            <p>重建濾波器只會保留奈奎斯特區間 $[-75, 75]$ 內的頻率。在這個區間內，現在出現了新的頻率分量 $\\pm 50$ Hz。</p>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <ul class="list-disc pl-6 mb-0">
+                                    <li>不滿足條件。</li>
+                                    <li>重建後的訊號頻率為 <strong>50 Hz</strong>。</li>
+                                </ul>
+                            </div>
+                            <p class="text-xs text-gray-400">(直觀理解：你以為你在錄 100 Hz 的聲音，但因為取樣太慢，播放出來變成了低沉的 50 Hz。這就是高頻偽裝成了低頻。)</p>
+                        </div>
                     </div>`
             },
-            7: {
-                title: "DFT 與 FFT 演算法",
+7: {
+                title: "離散傅立葉變換 (DFT) 與 FFT 演算法",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>電腦如何實際計算頻譜？</p>
-                        <h3>1. 從 DTFT 到 DFT</h3>
-                        <p>頻譜的離散化。</p>
-                        <h3>2. DFT 的矩陣形式</h3>
-                        <div class="math-block">$$X_k = \\sum_{n=0}^{N-1} x_n e^{-i \\frac{2\\pi}{N} k n}$$</div>
-                        <h3>3. 快速傅立葉變換 (FFT)</h3>
-                        <p>Cooley-Tukey 演算法，將複雜度降至 $O(N \\log N)$。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>分治法、范德蒙矩陣。</p></div>
+                        <p>這堂課是將「數學理論」轉化為「改變世界的程式碼」的關鍵時刻。</p>
+                        <p>在前六課，我們討論的傅立葉變換大多停留在紙筆計算的層面。但在現實應用（MP3 壓縮、JPEG 圖片、5G 通訊）中，我們處理的是有限長度的數據陣列。</p>
+                        <p>電腦不可能做積分，也不可能處理無窮級數。它只懂加法和乘法。這堂課我們將介紹工程界最重要的演算法之一：快速傅立葉變換 (FFT)。</p>
+
+                        <h3>1. 最後一塊拼圖：從 DTFT 到 DFT</h3>
+                        <p>在第 6 課，我們對時間進行了取樣，得到了離散時間傅立葉變換 (DTFT)。雖然時間離散了，但頻譜 $X(\\omega)$ 仍然是連續的（週期性函數）。</p>
+                        <p>電腦無法儲存連續的曲線。我們必須對頻率也進行取樣。如果我們在時域取了 $N$ 個點，最自然的對應就是在頻域也取 $N$ 個點。</p>
+                        <p>這就誕生了 <strong>離散傅立葉變換 (Discrete Fourier Transform, DFT)</strong>。</p>
+                        <p>它的定義不再有積分，只有求和：</p>
+                        <div class="math-block">$$X[k] = \\sum_{n=0}^{N-1} x[n] e^{-i \\frac{2\\pi}{N} k n}, \\quad k = 0, 1, \\dots, N-1$$</div>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>$x[n]$：時域的第 $n$ 個採樣點。</li>
+                            <li>$X[k]$：頻域的第 $k$ 個頻率分量（代表頻率 $\\omega_k = \\frac{2\\pi k}{N}$）。</li>
+                        </ul>
+                        <p><strong>直觀理解：</strong>這其實就是一個矩陣乘法。我們用一組離散的複數波去「探測」原始訊號。</p>
+
+                        <h3>2. 線性代數視角：單位根與矩陣</h3>
+                        <p>為了簡化書寫，我們定義 <strong>旋轉因子 (Twiddle Factor)</strong> $W_N$：</p>
+                        <div class="math-block">$$W_N = e^{-i \\frac{2\\pi}{N}}$$</div>
+                        <p>這是一個在複數平面單位圓上順時針旋轉 $\\frac{1}{N}$ 圈的向量。</p>
+                        <p>DFT 公式可以寫成極其優雅的線性代數形式：</p>
+                        <div class="math-block">$$\\mathbf{X} = \\mathbf{F} \\mathbf{x}$$</div>
+                        <p>其中 $\\mathbf{F}$ 是一個 $N \\times N$ 的矩陣，稱為 DFT 矩陣（范德蒙矩陣的一種）：</p>
+                        <div class="math-block">
+                            $$\\mathbf{F} =
+                            \\begin{bmatrix}
+                            1 & 1 & 1 & \\dots & 1 \\\\
+                            1 & W_N & W_N^2 & \\dots & W_N^{N-1} \\\\
+                            1 & W_N^2 & W_N^4 & \\dots & W_N^{2(N-1)} \\\\
+                            \\vdots & \\vdots & \\vdots & \\ddots & \\vdots \\\\
+                            1 & W_N^{N-1} & W_N^{2(N-1)} & \\dots & W_N^{(N-1)(N-1)}
+                            \\end{bmatrix}$$
+                        </div>
+                        <p>這個矩陣的每一行（Row）都是一個特定頻率的正交基底。</p>
+
+                        <h3>3. 計算危機：$O(N^2)$ 的詛咒</h3>
+                        <p>雖然矩陣形式很美，但直接計算它有個大問題。要計算 $\\mathbf{X}$ 中的每一個點，都需要做 $N$ 次乘法和加法。總共有 $N$ 個點，所以總運算量是 $N^2$。</p>
+                        <p><strong>複雜度：</strong>$O(N^2)$</p>
+                        <div class="highlight">
+                            <p><strong>代價：</strong>假設你要處理一段 1 秒鐘的高音質音訊（採樣率 44100 Hz），$N \\approx 40000$。$N^2 = 16,000,000,000$（160 億次運算）。對於一張 100 萬畫素的圖片，$N^2 = 10^{12}$。這在 1960 年代以前是計算機的惡夢。</p>
+                        </div>
+
+                        <h3>4. 演算法革命：Cooley-Tukey FFT</h3>
+                        <p>1965 年，Cooley 和 Tukey 重新發現了一種分治法 (Divide and Conquer)，將複雜度從 $O(N^2)$ 驚人地降低到 $O(N \\log N)$。這就是 <strong>快速傅立葉變換 (Fast Fourier Transform, FFT)</strong>。</p>
+                        <p><strong>核心思想：</strong>利用 $W_N$ 的週期性和對稱性：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>週期性：</strong>$W_N^{k+N} = W_N^k$</li>
+                            <li><strong>對稱性：</strong>$W_N^{k+N/2} = -W_N^k$（轉半圈等於加負號）</li>
+                        </ul>
+                        <p><strong>步驟 (Radix-2 DIT)：</strong>我們可以將一個 $N$ 點的 DFT 拆解成兩個 $N/2$ 點的 DFT：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>一個包含所有偶數索引點 ($x[0], x[2], \\dots$)</li>
+                            <li>一個包含所有奇數索引點 ($x[1], x[3], \\dots$)</li>
+                        </ul>
+                        <div class="math-block">
+                            $$X[k] = E[k] + W_N^k O[k]$$
+                            $$X[k + \\frac{N}{2}] = E[k] - W_N^k O[k]$$
+                        </div>
+                        <p><strong>奇蹟發生了：</strong>我們只需要計算一半的範圍，後半段的結果可以透過前半段的結果「免費」算出來（只需變個符號）。這樣一直遞迴拆解下去，直到剩下 2 點 DFT。</p>
+                        <p><strong>效率提升：</strong>若 $N = 1024$：</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>DFT: $1024^2 \\approx 1,000,000$ 次運算。</li>
+                            <li>FFT: $1024 \\times \\log_2(1024) = 1024 \\times 10 \\approx 10,000$ 次運算。</li>
+                        </ul>
+                        <p>速度提升了 100 倍！ 數據越大，差異越恐怖。這就是為什麼我們今天能即時看串流影片的原因。</p>
+
+                        <h3>課後練習 (Linear Algebra & Arithmetic)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：計算 4 點 DFT</h4>
+                            <p class="text-gray-300">雖雖然手算 FFT 很痛苦，但手算一個小型的 DFT 可以讓你對「旋轉因子」非常有感。</p>
+                            <p class="text-gray-300 mt-2">設有一個長度為 4 的離散訊號：</p>
+                            <div class="math-block">$$x[n] = [1, 0, -1, 0]$$</div>
+                            <p class="text-gray-300">(這對應於 $n=0, 1, 2, 3$ 的值)</p>
+                            <p class="text-gray-300 mt-2">請利用 DFT 定義或矩陣乘法，計算其頻譜 $X[k]$ (其中 $k=0, 1, 2, 3$)。</p>
+                            <p class="text-xs text-gray-500 mt-2">(提示：4 點的旋轉因子 $W_4 = e^{-i \\frac{2\\pi}{4}} = e^{-i \\frac{\\pi}{2}} = -i$。矩陣中的元素將會是 $1, -i, (-i)^2, (-i)^3$ 等的組合。)</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">1. 準備旋轉因子 $W_4$</h4>
+                            <div class="math-block">$$W_4 = e^{-i \\frac{2\\pi}{4}} = -i$$</div>
+                            <p>相關冪次：</p>
+                            <ul class="list-disc pl-6 text-gray-300 mb-4">
+                                <li>$W_4^0 = 1$</li>
+                                <li>$W_4^1 = -i$</li>
+                                <li>$W_4^2 = (-i)^2 = -1$</li>
+                                <li>$W_4^3 = (-i)^3 = i$</li>
+                            </ul>
+
+                            <h4 class="text-white font-bold mt-4">2. 使用定義公式展開</h4>
+                            <div class="math-block">$$X[k] = \\sum_{n=0}^{3} x[n] W_4^{kn}$$</div>
+                            <p>代入 $x[n]$ 的值，只有 $n=0$ 和 $n=2$ 有值（$1$ 和 $-1$），其他為 0。</p>
+                            <div class="math-block">$$X[k] = 1 \\cdot W_4^{k \\cdot 0} + (-1) \\cdot W_4^{k \\cdot 2} = 1 - W_4^{2k}$$</div>
+
+                            <h4 class="text-white font-bold mt-4">3. 逐一計算 $k$</h4>
+                            <ul class="list-disc pl-6 text-gray-300 mb-4">
+                                <li><strong>當 $k=0$ (直流分量):</strong><br>$X[0] = 1 - W_4^0 = 1 - 1 = 0$</li>
+                                <li><strong>當 $k=1$ (基頻):</strong><br>$X[1] = 1 - W_4^2 = 1 - (-1) = 2$</li>
+                                <li><strong>當 $k=2$ (中頻/奈奎斯特頻率):</strong><br>$X[2] = 1 - W_4^4$<br>因為 $W_4^4 = (W_4^0) = 1$ (轉一圈回到原點)<br>$X[2] = 1 - 1 = 0$</li>
+                                <li><strong>當 $k=3$ (負基頻):</strong><br>$X[3] = 1 - W_4^6$<br>$W_4^6 = W_4^4 \\cdot W_4^2 = 1 \\cdot (-1) = -1$<br>$X[3] = 1 - (-1) = 2$</li>
+                            </ul>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <div class="math-block">$$X[k] = [0, 2, 0, 2]$$</div>
+                            </div>
+                            <p class="text-xs text-gray-400"><strong>物理意義解讀：</strong><br>原始訊號 $1, 0, -1, 0$ 其實就是 $\\cos(\\frac{\\pi}{2} n)$ 的採樣。<br>我們算出的頻譜在 $k=1$ 和 $k=3$ 有值。<br>在 4 點 DFT 中，$k=1$ 代表正頻率，$k=3$ 代表負頻率（$3 \\equiv -1 \\pmod 4$）。<br>所以頻譜顯示這是一個純粹的餘弦波，沒有直流分量 ($k=0$ 為 0)，也沒有最高頻分量 ($k=2$ 為 0)。</p>
+                        </div>
                     </div>`
             },
-            8: {
-                title: "不確定性原理與現代擴展",
+8: {
+                title: "超越傅立葉——不確定性與現代擴展",
                 content: `
                     <div class="lesson-body">
-                        <p><strong>核心概念：</strong>傅立葉變換的極限。</p>
-                        <h3>1. 海森堡不確定性原理</h3>
+                        <h3>1. 傅立葉的阿基里斯之踵：時間的消失</h3>
+                        <p>傅立葉變換有一個哲學上的硬傷：它丟失了時間資訊。</p>
+                        <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} \\, dt$$</div>
+                        <p>積分是從 $-\\infty$ 到 $\\infty$。這意味著 $F(\\omega)$ 是一個<strong>全域（Global）</strong>的統計特徵。</p>
+                        <p>如果你把貝多芬的命運交響曲從頭播放，做一次 FFT。再把它倒著播放，做一次 FFT。結果的振幅譜是完全一模一樣的。</p>
+                        <p>傅立葉變換能告訴你這段音樂裡有「Do、Mi、Sol」這些頻率，但它無法告訴你這些音符是什麼時候出現的。對於隨時間變化的訊號（非平穩訊號），標準傅立葉變換是無力的。</p>
+
+                        <h3>2. 海森堡不確定性原理 (Heisenberg Uncertainty Principle)</h3>
+                        <p>你可能在量子力學聽過這個名字，但在訊號處理中，它是純粹的數學事實。</p>
+                        <p>我們定義訊號在時域的寬度為 $\\sigma_t$，在頻域的寬度為 $\\sigma_\\omega$。</p>
+                        <p>數學上可以證明：</p>
                         <div class="math-block">$$\\sigma_t \\cdot \\sigma_\\omega \\ge \\frac{1}{2}$$</div>
-                        <p>無法同時精確知道時間與頻率。</p>
-                        <h3>2. 短時距傅立葉變換 (STFT)</h3>
-                        <p>頻譜圖 (Spectrogram)。</p>
-                        <h3>3. 小波變換 (Wavelet)</h3>
-                        <p>解決多解析度問題。</p>
-                        <div class="highlight"><p><strong>關鍵數學：</strong>時頻分析。</p></div>
+                        <p><strong>意義：</strong></p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>你想要在時間上定位得越精準（$\\sigma_t$ 極小，例如短脈衝），頻譜就會散得越開（$\\sigma_\\omega$ 極大，寬頻帶）。</li>
+                            <li>你想要在頻率上定位得越精準（$\\sigma_\\omega$ 極小，例如純弦波），它在時間上就必須延續無窮久（$\\sigma_t \\to \\infty$）。</li>
+                        </ul>
+                        <p>這就是代價。你無法同時擁有完美的時間解析度與頻率解析度。</p>
+
+                        <h3>3. 補救方案 A：短時距傅立葉變換 (STFT)</h3>
+                        <p>為了解決「不知道什麼時候發生」的問題，工程師想出了一個簡單暴力的解法：加窗（Windowing）。</p>
+                        <p>我們不對整首歌做變換，而是切成一小段一小段（例如每 20ms 一段），然後對每一小段做 FFT。</p>
+                        <div class="math-block">$$STFT(\\tau, \\omega) = \\int_{-\\infty}^{\\infty} f(t) \\cdot w(t - \\tau) e^{-i\\omega t} \\, dt$$</div>
+                        <p>$w(t-\\tau)$ 是一個滑動的窗口函數（例如高斯窗）。結果是一個二維圖譜，稱為頻譜圖 (Spectrogram)（橫軸是時間，縱軸是頻率，顏色是強度）。</p>
+                        <p><strong>缺點：</strong>窗口大小是固定的。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li>窗太寬 $\\to$ 時間模糊。</li>
+                            <li>窗太窄 $\\to$ 頻率模糊。</li>
+                        </ul>
+                        <p>你被困在海森堡的牢籠裡。</p>
+
+                        <h3>4. 補救方案 B：小波變換 (Wavelet Transform)</h3>
+                        <p>這是 1980 年代數學界的搖滾巨星。小波變換不再使用單一長度的窗口，而是使用可伸縮的波形。</p>
+                        <ul class="list-disc pl-6 text-gray-300 mb-4">
+                            <li><strong>高頻訊號：</strong>變化快，持續時間短。$\\to$ 使用極窄的窗口（高時間解析度）。</li>
+                            <li><strong>低頻訊號：</strong>變化慢，持續時間長。$\\to$ 使用極寬的窗口（高頻率解析度）。</li>
+                        </ul>
+                        <p>這被稱為多解析度分析 (Multi-Resolution Analysis)。它就像是給了你一台顯微鏡（看高頻細節）和一台望遠鏡（看低頻輪廓），讓你既見樹木，又見森林。</p>
+
+                        <h3>總結：八堂課的回顧</h3>
+                        <div class="bg-white/5 p-4 rounded border border-white/10 text-sm text-gray-300">
+                            <ul class="list-none space-y-2">
+                                <li>📐 <strong>幾何</strong>：函數是向量，正交是靈魂。</li>
+                                <li>🔄 <strong>級數</strong>：週期波形可以拆解為旋轉的向量和。</li>
+                                <li>🌊 <strong>變換</strong>：週期趨向無窮，離散譜變成連續譜。</li>
+                                <li>⚙️ <strong>卷積</strong>：系統的運算，在頻域只是簡單的乘法。</li>
+                                <li>🔋 <strong>能量</strong>：帕塞瓦爾定理保證了變換的物理守恆。</li>
+                                <li>📸 <strong>取樣</strong>：數位化的代價是頻譜的複製與潛在的混疊。</li>
+                                <li>⚡ <strong>FFT</strong>：分治法演算法讓即時運算成為可能。</li>
+                                <li>🚫 <strong>極限</strong>：不確定性原理限制了我們對時空的認知，催生了小波分析。</li>
+                            </ul>
+                        </div>
+                        <p class="mt-4">這就是傅立葉變換的完整旅程。從 19 世紀的熱傳導方程式，到 21 世紀的量子計算與 AI，這個數學工具始終是人類理解波動世界的基石。</p>
+
+                        <h3>最終考驗 (The Final Problem)</h3>
+                        <div class="bg-white/5 p-4 rounded-lg border border-white/10 my-4">
+                            <h4 class="text-white font-bold mb-2">題目：高斯函數的傅立葉變換</h4>
+                            <p class="text-gray-300">為了證明不確定性原理，我們選用數學上最特殊的函數——高斯函數 (Gaussian Function)。它是唯一能讓不確定性不等式取「等號」（達到極限）的函數。</p>
+                            <p class="text-gray-300 mt-4">設函數 $f(t)$ 為一個中心在原點的高斯鐘形曲線：</p>
+                            <div class="math-block">$$f(t) = e^{-at^2}, \\quad a > 0$$</div>
+                            <p class="text-gray-300">請計算其傅立葉變換 $F(\\omega)$。</p>
+                            <p class="text-xs text-gray-500 mt-2">(提示：你需要用到高斯積分公式 $\\int_{-\\infty}^{\\infty} e^{-x^2} dx = \\sqrt{\\pi}$，並透過配方方完成積分。)</p>
+                            <p class="text-gray-300 mt-2">觀察結果：當參數 $a$ 變大（時域變窄）時，$F(\\omega)$ 的寬度會發生什麼變化？</p>
+                        </div>
+
+                        <h3>練習題解答</h3>
+                        <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
+                        <div class="spoiler-blur" onclick="this.classList.add('revealed')">
+                            <h4 class="text-white font-bold mt-0">1. 設定積分</h4>
+                            <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} e^{-at^2} e^{-i\\omega t} \\, dt$$</div>
+                            <p>合併指數項：</p>
+                            <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} e^{-(at^2 + i\\omega t)} \\, dt$$</div>
+
+                            <h4 class="text-white font-bold mt-4">2. 配方法 (Completing the Square)</h4>
+                            <p>我們希望將指數部分湊成完全平方形式 $-a(t + k)^2 + C$。</p>
+                            <p>目標：$at^2 + i\\omega t = a(t^2 + \\frac{i\\omega}{a}t)$</p>
+                            <p>配方：</p>
+                            <div class="math-block">
+                                $$a \\left( t^2 + \\frac{i\\omega}{a}t + \\left(\\frac{i\\omega}{2a}\\right)^2 - \\left(\\frac{i\\omega}{2a}\\right)^2 \\right)$$
+                                $$= a \\left( t + \\frac{i\\omega}{2a} \\right)^2 - a \\left( \\frac{i^2 \\omega^2}{4a^2} \\right)$$
+                                $$= a \\left( t + \\frac{i\\omega}{2a} \\right)^2 + \\frac{\\omega^2}{4a}$$
+                            </div>
+                            <p>代回積分式：</p>
+                            <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} e^{-\\left[ a(t + \\frac{i\\omega}{2a})^2 + \\frac{\\omega^2}{4a} \\right]} \\, dt$$</div>
+                            <p>將與 $t$ 無關的項移出積分外：</p>
+                            <div class="math-block">$$F(\\omega) = e^{-\\frac{\\omega^2}{4a}} \\int_{-\\infty}^{\\infty} e^{-a(t + \\frac{i\\omega}{2a})^2} \\, dt$$</div>
+
+                            <h4 class="text-white font-bold mt-4">3. 利用高斯積分公式</h4>
+                            <p>已知 $\\int_{-\\infty}^{\\infty} e^{-ax^2} dx = \\sqrt{\\frac{\\pi}{a}}$。</p>
+                            <p>雖然這裡的變數平移了一個複數常數 $\\frac{i\\omega}{2a}$，但在複變函數論中，積分路徑平移不改變全域積分值（柯西積分定理）。</p>
+                            <p>所以積分部分的值仍為 $\\sqrt{\\frac{\\pi}{a}}$。</p>
+                            
+                            <div class="highlight">
+                                <p><strong>答案：</strong></p>
+                                <div class="math-block">$$F(\\omega) = \\sqrt{\\frac{\\pi}{a}} e^{-\\frac{\\omega^2}{4a}}$$</div>
+                            </div>
+
+                            <h4 class="text-white font-bold mt-4">4. 物理意義分析 (不確定性)</h4>
+                            <p>輸入 $f(t)$ 是高斯函數 $e^{-at^2}$。</p>
+                            <p>輸出 $F(\\omega)$ 也是高斯函數 $e^{-\\frac{\\omega^2}{4a}}$。</p>
+                            <p><strong>(高斯函數的傅立葉變換仍然是高斯函數！這是它獨有的特徵。)</strong></p>
+                            <p>觀察參數 $a$：</p>
+                            <ul class="list-disc pl-6 text-gray-300">
+                                <li>如果 $a$ 很大（時域 $e^{-at^2}$ 衰減快，圖形很窄）。</li>
+                                <li>那麼 $\\frac{1}{4a}$ 就會很小（頻域 $e^{-\\frac{\\omega^2}{4a}}$ 衰減慢，圖形很寬）。</li>
+                            </ul>
+                            <p class="mt-2 text-blue-300 font-bold">這完美驗證了不確定性原理：時域越窄，頻域越寬。</p>
+                            
+                            <div class="mt-8 p-4 border-t border-white/20 text-center">
+                                <p class="text-white font-bold text-lg">🎉 恭喜你完成了這 8 堂傅立葉變換的系統性課程！</p>
+                                <p class="text-sm text-gray-400 mt-2">希望這套「從幾何直觀到演算法實踐」的框架，能成為你未來深入研究數學與物理的堅實基石。</p>
+                            </div>
+                        </div>
                     </div>`
             }
         };
@@ -696,14 +1462,14 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('nav-' + pageId).classList.add('active');
             if(pageId === 'studio') resize();
-            // Auto-render math when knowledge page opens
+            
+            // Typeset MathJax when showing knowledge page
             if(pageId === 'knowledge' && window.MathJax) {
                 setTimeout(() => MathJax.typesetPromise(), 50);
             }
         }
 
         function flipCard(card) {
-            // Ensure math is rendered on back face
             if(window.MathJax && !card.classList.contains('flipped')) {
                 MathJax.typesetPromise([card.querySelector('.flip-card-back')]);
             }
@@ -731,43 +1497,63 @@
             if(e.target.id === 'lesson-modal') closeLesson();
         });
 
-        // --- DFT & V7.0 Logic ---
+        // --- Same logic as V7.0 below ---
+// --- DFT Algorithm ---
         function dft(x) {
-            const X = []; const N = x.length;
+            const X = [];
+            const N = x.length;
             for (let k = 0; k < N; k++) {
-                let re = 0, im = 0;
+                let re = 0;
+                let im = 0;
                 for (let n = 0; n < N; n++) {
                     const phi = (2 * Math.PI * k * n) / N;
                     re += x[n].x * Math.cos(phi) + x[n].y * Math.sin(phi);
                     im += x[n].y * Math.cos(phi) - x[n].x * Math.sin(phi);
                 }
-                re = re / N; im = im / N;
-                let freq = k; if (k > N / 2) freq = k - N;
+                re = re / N;
+                im = im / N;
+                
+                let freq = k;
                 let amp = Math.sqrt(re * re + im * im);
                 let phase = Math.atan2(im, re);
+                
+                // Handle negative frequencies
+                if (k > N / 2) {
+                    freq = k - N;
+                }
+
                 X[k] = { re, im, freq, amp, phase };
             }
             return X;
         }
 
+        // --- Setup Canvases ---
         const canvasWave = document.getElementById('canvas-wave');
         const ctxWave = canvasWave.getContext('2d');
+        
         const canvasDraw = document.getElementById('canvas-draw');
         const ctxDraw = canvasDraw.getContext('2d');
+        
         const canvasTrail = document.getElementById('canvas-trail');
         const ctxTrail = canvasTrail.getContext('2d');
 
         function resize() {
-            const w = window.innerWidth; const h = window.innerHeight;
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            
             canvasWave.width = w; canvasWave.height = h;
             canvasDraw.width = w; canvasDraw.height = h;
             canvasTrail.width = w; canvasTrail.height = h;
+
             state.origin = { x: w/2, y: h/2 };
         }
         window.addEventListener('resize', resize);
         resize();
 
+        // --- Studio Logic ---
         const statusMsg = document.getElementById('status-msg');
+
+        // Interaction
         canvasDraw.addEventListener('mousedown', startDrawing);
         canvasDraw.addEventListener('mousemove', makeDrawing);
         canvasDraw.addEventListener('mouseup', endDrawing);
@@ -776,21 +1562,33 @@
         canvasDraw.addEventListener('touchend', endDrawing);
 
         function startDrawing(e) {
-            state.drawing = true; state.isImageMode = false;
-            state.path = []; state.fourierX = []; state.historyPaths = [];
+            state.drawing = true;
+            state.isImageMode = false;
+            state.path = [];
+            state.fourierX = [];
+            
             ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
-            state.lastPoint = null; state.origin = {x: 0, y: 0};
+            state.lastPoint = null;
+            
+            state.origin = {x: 0, y: 0};
             statusMsg.innerText = "Recording...";
         }
+
         function makeDrawing(e) {
             if (!state.drawing) return;
             state.path.push({ x: e.clientX, y: e.clientY });
             if (state.path.length > 1) {
-                const last = state.path[state.path.length-2]; const curr = state.path[state.path.length-1];
-                ctxTrail.beginPath(); ctxTrail.strokeStyle = "#555"; ctxTrail.lineWidth = 2;
-                ctxTrail.moveTo(last.x, last.y); ctxTrail.lineTo(curr.x, curr.y); ctxTrail.stroke();
+                const last = state.path[state.path.length-2];
+                const curr = state.path[state.path.length-1];
+                ctxTrail.beginPath();
+                ctxTrail.strokeStyle = "#555";
+                ctxTrail.lineWidth = 2;
+                ctxTrail.moveTo(last.x, last.y);
+                ctxTrail.lineTo(curr.x, curr.y);
+                ctxTrail.stroke();
             }
         }
+
         function endDrawing() {
             if (!state.drawing) return;
             state.drawing = false;
@@ -798,101 +1596,204 @@
             calculateFourier(1);
         }
 
+        // --- V7.0 Image Processing: Segment Stitching ---
         window.processImage = function(input) {
             if (!input.files || !input.files[0]) return;
             statusMsg.innerText = "Scanning...";
+            
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const tempC = document.createElement('canvas');
+                    // Upscale for better detection
                     const scale = 600 / Math.max(img.width, img.height); 
-                    const w = Math.floor(img.width * scale); const h = Math.floor(img.height * scale);
-                    tempC.width = w; tempC.height = h;
+                    const w = Math.floor(img.width * scale);
+                    const h = Math.floor(img.height * scale);
+                    tempC.width = w;
+                    tempC.height = h;
                     const tCtx = tempC.getContext('2d');
                     tCtx.drawImage(img, 0, 0, w, h);
+
                     const data = tCtx.getImageData(0, 0, w, h).data;
                     const getVal = (x, y) => {
                         if (x < 0 || y < 0 || x >= w || y >= h) return 0;
                         const i = (y * w + x) * 4;
                         return (data[i] + data[i+1] + data[i+2]) / 3;
                     };
-                    const edgeMap = new Uint8Array(w * h); const edges = [];
+
+                    // 1. Sobel Edge Detection
+                    const edgeMap = new Uint8Array(w * h); 
+                    const edges = [];
+
                     for (let y = 1; y < h - 1; y++) {
                         for (let x = 1; x < w - 1; x++) {
-                            const gx = -getVal(x-1, y-1) + getVal(x+1, y-1) + -2*getVal(x-1, y) + 2*getVal(x+1, y) + -getVal(x-1, y+1) + getVal(x+1, y+1);
-                            const gy = -getVal(x-1, y-1) - 2*getVal(x, y-1) - getVal(x+1, y-1) + getVal(x-1, y+1) + 2*getVal(x, y+1) + getVal(x+1, y+1);
-                            if (Math.sqrt(gx*gx + gy*gy) > 45) { edgeMap[y * w + x] = 1; edges.push({x, y}); }
+                            const gx = -getVal(x-1, y-1) + getVal(x+1, y-1) + 
+                                       -2*getVal(x-1, y) + 2*getVal(x+1, y) + 
+                                       -getVal(x-1, y+1) + getVal(x+1, y+1);
+                            const gy = -getVal(x-1, y-1) - 2*getVal(x, y-1) - getVal(x+1, y-1) +
+                                       getVal(x-1, y+1) + 2*getVal(x, y+1) + getVal(x+1, y+1);
+                            
+                            // Low threshold to catch details
+                            if (Math.sqrt(gx*gx + gy*gy) > 45) {
+                                edgeMap[y * w + x] = 1;
+                                edges.push({x, y});
+                            }
                         }
                     }
-                    if (edges.length < 10) { statusMsg.innerText = "No edges found."; return; }
+
+                    if (edges.length < 10) {
+                        statusMsg.innerText = "No edges found.";
+                        return;
+                    }
+
                     statusMsg.innerText = "Linking Segments...";
+
                     setTimeout(() => {
-                        const visited = new Uint8Array(w * h); const allSegments = [];
+                        // 2. Extract All Contours
+                        const visited = new Uint8Array(w * h);
+                        const allSegments = [];
+
                         for (let i = 0; i < edges.length; i++) {
-                            const startPt = edges[i]; const idx = startPt.y * w + startPt.x;
+                            const startPt = edges[i];
+                            const idx = startPt.y * w + startPt.x;
+                            
                             if (visited[idx]) continue;
-                            let currentPath = []; let stack = [startPt]; visited[idx] = 1;
+
+                            let currentPath = [];
+                            let stack = [startPt];
+                            visited[idx] = 1;
+
                             while (stack.length > 0) {
-                                const pt = stack.pop(); currentPath.push(pt);
+                                const pt = stack.pop();
+                                currentPath.push(pt);
+
                                 const neighbors = [];
                                 for (let dy = -1; dy <= 1; dy++) {
                                     for (let dx = -1; dx <= 1; dx++) {
                                         if (dx === 0 && dy === 0) continue;
-                                        const nx = pt.x + dx; const ny = pt.y + dy; const nIdx = ny * w + nx;
-                                        if (nx >= 0 && nx < w && ny >= 0 && ny < h && edgeMap[nIdx] === 1 && !visited[nIdx]) {
+                                        const nx = pt.x + dx;
+                                        const ny = pt.y + dy;
+                                        const nIdx = ny * w + nx;
+                                        
+                                        if (nx >= 0 && nx < w && ny >= 0 && ny < h && 
+                                            edgeMap[nIdx] === 1 && !visited[nIdx]) {
                                             neighbors.push({x: nx, y: ny, idx: nIdx});
                                         }
                                     }
                                 }
-                                if (neighbors.length > 0) { const next = neighbors[0]; visited[next.idx] = 1; stack.push(next); }
+
+                                if (neighbors.length > 0) {
+                                    const next = neighbors[0];
+                                    visited[next.idx] = 1;
+                                    stack.push(next);
+                                }
                             }
-                            if (currentPath.length > 15) allSegments.push(currentPath);
+
+                            if (currentPath.length > 15) {
+                                allSegments.push(currentPath);
+                            }
                         }
-                        if (allSegments.length === 0) { statusMsg.innerText = "No valid contours."; return; }
+
+                        if (allSegments.length === 0) {
+                            statusMsg.innerText = "No valid contours.";
+                            return;
+                        }
+
+                        // 3. Stitching Segments (Nearest Neighbor)
                         allSegments.sort((a, b) => b.length - a.length);
+                        
                         let finalPath = allSegments[0];
-                        const usedSegments = new Uint8Array(allSegments.length); usedSegments[0] = 1;
+                        const usedSegments = new Uint8Array(allSegments.length);
+                        usedSegments[0] = 1;
+
                         for (let k = 1; k < allSegments.length; k++) {
-                            let bestIdx = -1; let minInfo = { dist: Infinity, reverse: false };
+                            let bestIdx = -1;
+                            let minInfo = { dist: Infinity, reverse: false };
                             const tail = finalPath[finalPath.length - 1];
+
                             for (let j = 1; j < allSegments.length; j++) {
                                 if (usedSegments[j]) continue;
-                                const seg = allSegments[j]; const head = seg[0]; const segTail = seg[seg.length - 1];
+                                
+                                const seg = allSegments[j];
+                                const head = seg[0];
+                                const segTail = seg[seg.length - 1];
+
                                 const d1 = (tail.x - head.x)**2 + (tail.y - head.y)**2;
                                 const d2 = (tail.x - segTail.x)**2 + (tail.y - segTail.y)**2;
-                                if (d1 < minInfo.dist) { minInfo = { dist: d1, reverse: false }; bestIdx = j; }
-                                if (d2 < minInfo.dist) { minInfo = { dist: d2, reverse: true }; bestIdx = j; }
+
+                                if (d1 < minInfo.dist) {
+                                    minInfo = { dist: d1, reverse: false };
+                                    bestIdx = j;
+                                }
+                                if (d2 < minInfo.dist) {
+                                    minInfo = { dist: d2, reverse: true };
+                                    bestIdx = j;
+                                }
                             }
+
                             if (bestIdx !== -1) {
-                                usedSegments[bestIdx] = 1; let nextSeg = allSegments[bestIdx];
-                                if (minInfo.reverse) nextSeg = nextSeg.slice().reverse();
+                                usedSegments[bestIdx] = 1;
+                                let nextSeg = allSegments[bestIdx];
+                                if (minInfo.reverse) {
+                                    nextSeg = nextSeg.slice().reverse();
+                                }
                                 finalPath = finalPath.concat(nextSeg);
-                            } else { break; }
+                            } else {
+                                break;
+                            }
                         }
-                        const smoothed = []; const windowSize = 2;
+
+                        // 4. Smoothing
+                        const smoothed = [];
+                        const windowSize = 2;
                         for(let i=0; i<finalPath.length; i++) {
                             let sumX = 0, sumY = 0, n = 0;
                             for(let j = -windowSize; j <= windowSize; j++) {
                                 let idx = i + j;
-                                if (idx >= 0 && idx < finalPath.length) { sumX += finalPath[idx].x; sumY += finalPath[idx].y; n++; }
+                                if (idx >= 0 && idx < finalPath.length) {
+                                    sumX += finalPath[idx].x;
+                                    sumY += finalPath[idx].y;
+                                    n++;
+                                }
                             }
                             smoothed.push({x: sumX/n, y: sumY/n});
                         }
+
+                        // 5. Scale & Center
                         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-                        for(let p of smoothed) { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); }
-                        const contentW = maxX - minX; const contentH = maxY - minY;
+                        for(let p of smoothed) {
+                            minX = Math.min(minX, p.x);
+                            maxX = Math.max(maxX, p.x);
+                            minY = Math.min(minY, p.y);
+                            maxY = Math.max(maxY, p.y);
+                        }
+
+                        const contentW = maxX - minX;
+                        const contentH = maxY - minY;
                         const screenScale = Math.min(canvasDraw.width * 0.7, canvasDraw.height * 0.7) / Math.max(contentW, contentH);
-                        const centerX = (minX + maxX) / 2; const centerY = (minY + maxY) / 2;
-                        state.path = smoothed.map(p => ({ x: (p.x - centerX) * screenScale, y: (p.y - centerY) * screenScale }));
-                        state.isImageMode = true; state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
+                        const centerX = (minX + maxX) / 2;
+                        const centerY = (minY + maxY) / 2;
+
+                        state.path = smoothed.map(p => ({
+                            x: (p.x - centerX) * screenScale,
+                            y: (p.y - centerY) * screenScale
+                        }));
+
+                        state.isImageMode = true;
+                        state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
+                        
+                        // Clear Trail
                         ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
-                        state.lastPoint = null; state.historyPaths = [];
+                        state.lastPoint = null;
+
+                        // 6. Downsampling (Limit to ~3000 points for performance)
                         const targetPoints = 3000; 
                         if (state.path.length > targetPoints) {
                             const step = Math.ceil(state.path.length / targetPoints);
                             state.path = state.path.filter((_, i) => i % step === 0);
                         }
+
                         calculateFourier(1);
                     }, 50);
                 }
@@ -905,102 +1806,205 @@
             statusMsg.innerText = "Computing DFT...";
             const sampled = [];
             for(let i=0; i<state.path.length; i+=skip) sampled.push(state.path[i]);
+            
             state.fourierX = dft(sampled);
-            if (state.isImageMode) { state.fourierX[0].re = 0; state.fourierX[0].im = 0; }
+            
+            if (state.isImageMode) {
+                state.fourierX[0].re = 0;
+                state.fourierX[0].im = 0;
+            }
+
             state.fourierX.sort((a, b) => b.amp - a.amp);
-            state.drawTime = 0; state.lastPoint = null; state.currentDrawingBuffer = [];
+            state.drawTime = 0;
+            state.lastPoint = null;
             statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
         }
 
+        // --- Rendering Loops ---
+
         function drawWaveLoop() {
             if(state.page !== 'home') return;
-            ctxWave.fillStyle = "#050505"; ctxWave.fillRect(0, 0, canvasWave.width, canvasWave.height);
+            
+            ctxWave.fillStyle = "#050505";
+            ctxWave.fillRect(0, 0, canvasWave.width, canvasWave.height);
+
             let cx = canvasWave.width < 768 ? canvasWave.width / 2 : canvasWave.width * 0.3;
-            let cy = canvasWave.height / 2; let x = cx, y = cy;
+            let cy = canvasWave.height / 2;
+            let x = cx, y = cy;
+
             for (let i = 0; i < state.waveN; i++) {
-                let prevX = x, prevY = y; let n, radius;
-                if (state.waveType === 'square') { n = i * 2 + 1; radius = 100 * (4 / (n * Math.PI)); }
-                else if (state.waveType === 'sawtooth') { n = i + 1; radius = 100 * (2 / (n * Math.PI)) * (i % 2 === 0 ? 1 : -1); }
-                else { n = i * 2 + 1; radius = 100 * (8 / (Math.PI * Math.PI * n * n)) * (i % 2 === 0 ? 1 : -1); }
-                x += radius * Math.cos(n * state.time); y += radius * Math.sin(n * state.time);
-                ctxWave.beginPath(); ctxWave.strokeStyle = "rgba(255,255,255,0.15)"; ctxWave.arc(prevX, prevY, Math.abs(radius), 0, Math.PI * 2); ctxWave.stroke();
-                if (i < 20) { ctxWave.beginPath(); ctxWave.strokeStyle = "rgba(255,255,255,0.3)"; ctxWave.moveTo(prevX, prevY); ctxWave.lineTo(x, y); ctxWave.stroke(); }
+                let prevX = x, prevY = y;
+                let n, radius;
+
+                if (state.waveType === 'square') {
+                    n = i * 2 + 1;
+                    radius = 100 * (4 / (n * Math.PI));
+                } else if (state.waveType === 'sawtooth') {
+                    n = i + 1;
+                    radius = 100 * (2 / (n * Math.PI)) * (i % 2 === 0 ? 1 : -1);
+                } else {
+                    n = i * 2 + 1;
+                    radius = 100 * (8 / (Math.PI * Math.PI * n * n)) * (i % 2 === 0 ? 1 : -1);
+                }
+
+                x += radius * Math.cos(n * state.time);
+                y += radius * Math.sin(n * state.time);
+
+                ctxWave.beginPath();
+                ctxWave.strokeStyle = "rgba(255,255,255,0.15)";
+                ctxWave.arc(prevX, prevY, Math.abs(radius), 0, Math.PI * 2);
+                ctxWave.stroke();
+
+                if (i < 20) { 
+                    ctxWave.beginPath();
+                    ctxWave.strokeStyle = "rgba(255,255,255,0.3)";
+                    ctxWave.moveTo(prevX, prevY);
+                    ctxWave.lineTo(x, y);
+                    ctxWave.stroke();
+                }
             }
-            let offset = 200; state.wavePath.unshift(y); if(state.wavePath.length > 1000) state.wavePath.pop();
-            ctxWave.beginPath(); ctxWave.strokeStyle = "rgba(255,255,255,0.1)"; ctxWave.moveTo(x, y); ctxWave.lineTo(cx + offset, y); ctxWave.stroke();
-            ctxWave.beginPath(); ctxWave.strokeStyle = "#fff"; ctxWave.lineWidth = 2; ctxWave.moveTo(cx + offset, state.wavePath[0]);
-            for(let i=1; i<state.wavePath.length; i++) ctxWave.lineTo(cx + offset + i, state.wavePath[i]); ctxWave.stroke();
+
+            let offset = 200;
+            state.wavePath.unshift(y);
+            if(state.wavePath.length > 1000) state.wavePath.pop();
+
+            ctxWave.beginPath();
+            ctxWave.strokeStyle = "rgba(255,255,255,0.1)";
+            ctxWave.moveTo(x, y);
+            ctxWave.lineTo(cx + offset, y);
+            ctxWave.stroke();
+
+            ctxWave.beginPath();
+            ctxWave.strokeStyle = "#fff";
+            ctxWave.lineWidth = 2;
+            ctxWave.moveTo(cx + offset, state.wavePath[0]);
+            for(let i=1; i<state.wavePath.length; i++) {
+                ctxWave.lineTo(cx + offset + i, state.wavePath[i]);
+            }
+            ctxWave.stroke();
             state.time -= 0.02;
         }
 
         function drawStudioLoop() {
             if(state.page !== 'studio') return;
+
+            // 1. Clear Circles Layer only
             ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
-            ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
 
-            if (state.historyPaths && state.historyPaths.length > 0) {
-                for (let i = 0; i < state.historyPaths.length; i++) {
-                    const h = state.historyPaths[i];
-                    if (h.points.length < 2) continue;
-                    ctxTrail.beginPath(); ctxTrail.strokeStyle = `rgba(255, 255, 255, ${h.opacity})`; ctxTrail.lineWidth = 2.5; ctxTrail.lineCap = "round";
-                    ctxTrail.moveTo(h.points[0].x, h.points[0].y);
-                    for (let k = 1; k < h.points.length; k++) ctxTrail.lineTo(h.points[k].x, h.points[k].y);
-                    ctxTrail.stroke();
-                    h.opacity -= 0.005;
-                }
-                state.historyPaths = state.historyPaths.filter(h => h.opacity > 0);
-            }
-
+            // 2. Draw Ghost Path
             if (state.path.length > 0) {
-                ctxDraw.beginPath(); ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.05)"; ctxDraw.lineWidth = 2;
-                const startX = state.isImageMode ? state.origin.x : 0; const startY = state.isImageMode ? state.origin.y : 0;
+                ctxDraw.beginPath();
+                ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.05)";
+                ctxDraw.lineWidth = 2;
+                
+                const startX = state.isImageMode ? state.origin.x : 0;
+                const startY = state.isImageMode ? state.origin.y : 0;
+
                 ctxDraw.moveTo(startX + state.path[0].x, startY + state.path[0].y);
-                for(let p of state.path) ctxDraw.lineTo(startX + p.x, startY + p.y); ctxDraw.stroke();
+                for(let p of state.path) ctxDraw.lineTo(startX + p.x, startY + p.y);
+                ctxDraw.stroke();
             }
 
+            // 3. Fourier Animation
             if (state.fourierX.length > 0) {
-                let x = state.origin.x; let y = state.origin.y;
+                let x = state.origin.x;
+                let y = state.origin.y;
+
                 for (let i = 0; i < state.fourierX.length; i++) {
                     let prevX = x, prevY = y;
-                    let freq = state.fourierX[i].freq; let radius = state.fourierX[i].amp; let phase = state.fourierX[i].phase;
-                    x += radius * Math.cos(freq * state.drawTime + phase); y += radius * Math.sin(freq * state.drawTime + phase);
-                    if (radius > 0.5) {
-                        ctxDraw.beginPath(); ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.3)"; ctxDraw.lineWidth = 1; ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2); ctxDraw.stroke();
-                        ctxDraw.beginPath(); ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)"; ctxDraw.lineWidth = 1.5; ctxDraw.moveTo(prevX, prevY); ctxDraw.lineTo(x, y); ctxDraw.stroke();
+                    let freq = state.fourierX[i].freq;
+                    let radius = state.fourierX[i].amp;
+                    let phase = state.fourierX[i].phase;
+
+                    x += radius * Math.cos(freq * state.drawTime + phase);
+                    y += radius * Math.sin(freq * state.drawTime + phase);
+
+                    if (radius > 0.5) { 
+                        // High Contrast Circles
+                        ctxDraw.beginPath();
+                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.3)"; 
+                        ctxDraw.lineWidth = 1;
+                        ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
+                        ctxDraw.stroke();
+
+                        // High Contrast Arms
+                        ctxDraw.beginPath();
+                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)"; 
+                        ctxDraw.lineWidth = 1.5;
+                        ctxDraw.moveTo(prevX, prevY);
+                        ctxDraw.lineTo(x, y);
+                        ctxDraw.stroke();
                     }
                 }
-                if (!state.currentDrawingBuffer) state.currentDrawingBuffer = [];
+
+                // 4. Draw Trail with Flying Line Detection
                 if (state.lastPoint) {
                     const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);
+                    // Jump threshold scales with speed
                     const jumpThreshold = 2 + state.drawSpeed * 3; 
-                    if (dist <= jumpThreshold) { state.currentDrawingBuffer.push({x, y}); } 
-                    else { state.currentDrawingBuffer.push({x, y}); }
-                    ctxTrail.beginPath(); ctxTrail.strokeStyle = `rgba(255, 255, 255, 1)`; ctxTrail.lineWidth = 2.5; ctxTrail.lineCap = "round";
-                    ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y); ctxTrail.lineTo(x, y); ctxTrail.stroke();
-                }
-                state.lastPoint = {x, y};
-                const dt = (2 * Math.PI / state.fourierX.length); state.drawTime += dt * state.drawSpeed;
-                if (state.drawTime > 2 * Math.PI) {
-                    state.drawTime = 0; state.lastPoint = null;
-                    if (state.currentDrawingBuffer.length > 0) {
-                        state.historyPaths.push({ points: [...state.currentDrawingBuffer], opacity: 1.0 });
-                        state.currentDrawingBuffer = [];
+                    
+                    let opacity = 1;
+                    // If it jumps too far, reduce opacity to hide flying lines
+                    if (dist > jumpThreshold) {
+                        opacity = Math.max(0.02, jumpThreshold / (dist * 1.5));
                     }
+
+                    ctxTrail.beginPath();
+                    ctxTrail.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctxTrail.lineWidth = 2.5;
+                    ctxTrail.lineCap = "round";
+                    ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y);
+                    ctxTrail.lineTo(x, y);
+                    ctxTrail.stroke();
+                }
+
+                state.lastPoint = {x, y};
+
+                const dt = (2 * Math.PI / state.fourierX.length);
+                state.drawTime += dt * state.drawSpeed;
+
+                if (state.drawTime > 2 * Math.PI) {
+                    state.drawTime = 0;
+                    state.lastPoint = null;
                     ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
                 }
             }
         }
 
-        document.getElementById('wave-slider').addEventListener('input', e => { state.waveN = parseInt(e.target.value); document.getElementById('wave-n-display').innerText = state.waveN; state.wavePath = []; });
+        // --- Controls ---
+        document.getElementById('wave-slider').addEventListener('input', e => {
+            state.waveN = parseInt(e.target.value);
+            document.getElementById('wave-n-display').innerText = state.waveN;
+            state.wavePath = [];
+        });
+
         const speedInput = document.getElementById('speed-input');
-        speedInput.addEventListener('input', e => { let val = parseFloat(e.target.value); if(isNaN(val)) val = 1; if(val < 0.001) val = 0.001; if(val > 1000) val = 1000; state.drawSpeed = val; });
+        speedInput.addEventListener('input', e => {
+            let val = parseFloat(e.target.value);
+            if(isNaN(val)) val = 1;
+            if(val < 0.001) val = 0.001;
+            if(val > 1000) val = 1000;
+            state.drawSpeed = val;
+        });
+
         window.setWaveType = type => { state.waveType = type; state.wavePath = []; };
+        
         window.resetCanvas = () => { 
-            state.path = []; state.fourierX = []; state.lastPoint = null; state.drawTime = 0; state.historyPaths = [];
-            statusMsg.innerText = "Ready"; ctxDraw.clearRect(0,0,canvasDraw.width, canvasDraw.height); ctxTrail.clearRect(0,0,canvasTrail.width, canvasTrail.height);
+            state.path = []; state.fourierX = []; 
+            state.lastPoint = null;
+            state.drawTime = 0;
+            statusMsg.innerText = "Ready";
+            ctxDraw.clearRect(0,0,canvasDraw.width, canvasDraw.height);
+            ctxTrail.clearRect(0,0,canvasTrail.width, canvasTrail.height);
         };
-        function animate() { if (state.page === 'home') drawWaveLoop(); else drawStudioLoop(); requestAnimationFrame(animate); }
+
+        function animate() {
+            if (state.page === 'home') drawWaveLoop();
+            else drawStudioLoop();
+            requestAnimationFrame(animate);
+        }
         animate();
+
     </script>
 </body>
 </html>
