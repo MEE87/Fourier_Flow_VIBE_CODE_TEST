@@ -597,7 +597,10 @@
                 <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">TOOLS</label>
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="resetCanvas()" class="py-3 border border-red-500/30 text-red-400 text-xs tracking-widest hover:bg-red-500/10 transition rounded">RESET</button>
-                    <label class="py-3 border border-white/20 text-white text-xs tracking-widest hover:bg-white/10 transition rounded text-center cursor-pointer bg-white/5">
+                    
+                    <button onclick="clearTrail()" class="py-3 border border-yellow-500/30 text-yellow-400 text-xs tracking-widest hover:bg-yellow-500/10 transition rounded">CLEAR</button>
+                    
+                    <label class="col-span-2 py-3 border border-white/20 text-white text-xs tracking-widest hover:bg-white/10 transition rounded text-center cursor-pointer bg-white/5">
                         UPLOAD IMG
                         <input type="file" accept="image/*" onchange="processImage(this)" class="hidden">
                     </label>
@@ -606,12 +609,25 @@
             </div>
             
             <div class="p-4 bg-white/5 rounded border border-white/10">
-                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">VIBE MODE</label>
-                <div class="flex gap-2">
-                    <button id="btn-mic" onclick="toggleAudio()" class="flex-1 py-2 text-[10px] border border-green-500/30 text-green-400 hover:bg-green-500/10 transition rounded">MIC OFF</button>
-                    <button id="btn-3d" onclick="toggle3D()" class="flex-1 py-2 text-[10px] border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition rounded">2D VIEW</button>
+                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">IMMERSIVE</label>
+                <button id="btn-vibe" onclick="toggleVibeMode()" class="w-full py-3 border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition rounded tracking-widest font-bold flex items-center justify-center gap-2">
+                    <span>⚡ VIBE MODE OFF</span>
+                </button>
+            </div>
+
+            <div class="p-4 bg-white/5 rounded border border-white/10">
+                <h3 class="text-xs font-bold text-white mb-1">STATUS</h3>
+                <p id="status-msg" class="text-[10px] text-gray-400 leading-relaxed font-mono">Waiting for input...</p>
+            </div>
+            <div>
+                <div class="flex justify-between text-[10px] text-gray-500 mb-2 items-center">
+                    <span>SPEED</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="speed-input" class="w-full p-2 text-sm rounded" min="0.001" max="1000" step="0.1" value="1">
                 </div>
             </div>
+        </div>
 
             <div class="p-4 bg-white/5 rounded border border-white/10">
                 <h3 class="text-xs font-bold text-white mb-1">STATUS</h3>
@@ -1631,15 +1647,15 @@
         // --- V7.0 Image Processing: Segment Stitching ---
  window.processImage = function(input) {
             if (!input.files || !input.files[0]) return;
-            statusMsg.innerText = "Scanning (Detail Mode)...";
+            statusMsg.innerText = "Scanning (Canny Edge Mode)...";
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const tempC = document.createElement('canvas');
-                    // 保持適當的解析度以捕捉細節，但不要過高導致雜訊
-                    const scale = 1200 / Math.max(img.width, img.height); 
+                    // 1. 適度降噪：將圖片縮小到 800px 寬，這本身就是一種很好的平滑化
+                    const scale = 800 / Math.max(img.width, img.height); 
                     const w = Math.floor(img.width * scale);
                     const h = Math.floor(img.height * scale);
                     tempC.width = w;
@@ -1647,211 +1663,213 @@
                     const tCtx = tempC.getContext('2d');
                     tCtx.drawImage(img, 0, 0, w, h);
 
-                    const data = tCtx.getImageData(0, 0, w, h).data;
-                    const getVal = (x, y) => {
-                        if (x < 0 || y < 0 || x >= w || y >= h) return 0;
-                        const i = (y * w + x) * 4;
-                        return (data[i] + data[i+1] + data[i+2]) / 3;
-                    };
+                    const imgData = tCtx.getImageData(0, 0, w, h);
+                    const data = imgData.data;
 
-                    // 1. Sobel 邊緣檢測 (調整敏感度)
-                    const edgeMap = new Uint8Array(w * h); 
-                    const edges = [];
+                    // 2. 轉灰階 (Grayscale)
+                    const gray = new Float32Array(w * h);
+                    for (let i = 0; i < w * h; i++) {
+                        gray[i] = 0.299 * data[4*i] + 0.587 * data[4*i+1] + 0.114 * data[4*i+2];
+                    }
+
+                    // 3. 計算梯度與方向 (Sobel Gradients)
+                    const mag = new Float32Array(w * h);
+                    const angles = new Float32Array(w * h);
                     
-                    // 門檻值：越低細節越多，但也越多雜訊。設為 35 是一個平衡點。
-                    const threshold = 35; 
-
                     for (let y = 1; y < h - 1; y++) {
                         for (let x = 1; x < w - 1; x++) {
-                            const gx = -getVal(x-1, y-1) + getVal(x+1, y-1) + 
-                                       -2*getVal(x-1, y) + 2*getVal(x+1, y) + 
-                                       -getVal(x-1, y+1) + getVal(x+1, y+1);
-                            const gy = -getVal(x-1, y-1) - 2*getVal(x, y-1) - getVal(x+1, y-1) +
-                                       getVal(x-1, y+1) + 2*getVal(x, y+1) + getVal(x+1, y+1);
+                            const i = y * w + x;
                             
-                            if (Math.sqrt(gx*gx + gy*gy) > threshold) {
-                                edgeMap[y * w + x] = 1;
-                                edges.push({x, y});
+                            // X 方向梯度
+                            const gx = 
+                                -gray[i - w - 1] + gray[i - w + 1] +
+                                -2 * gray[i - 1] + 2 * gray[i + 1] +
+                                -gray[i + w - 1] + gray[i + w + 1];
+                                
+                            // Y 方向梯度
+                            const gy = 
+                                -gray[i - w - 1] - 2 * gray[i - w] - gray[i - w + 1] +
+                                 gray[i + w - 1] + 2 * gray[i + w] + gray[i + w + 1];
+                            
+                            mag[i] = Math.sqrt(gx * gx + gy * gy);
+                            angles[i] = Math.atan2(gy, gx);
+                        }
+                    }
+
+                    // 4. 非極大值抑制 (NMS) - 這是解決「模糊一坨」的關鍵！
+                    // 它會把粗邊緣「削」成 1 像素寬的細線
+                    statusMsg.innerText = "Thinning Edges...";
+                    const nms = new Float32Array(w * h);
+                    
+                    for (let y = 1; y < h - 1; y++) {
+                        for (let x = 1; x < w - 1; x++) {
+                            const i = y * w + x;
+                            const m = mag[i];
+                            if (m < 15) continue; // 先過濾掉太弱的雜訊
+
+                            let angle = angles[i] * (180 / Math.PI);
+                            if (angle < 0) angle += 180;
+
+                            // 根據梯度方向，檢查相鄰像素是否更強
+                            let q = 255, r = 255;
+                            
+                            if ((angle >= 0 && angle < 22.5) || (angle >= 157.5 && angle <= 180)) {
+                                q = mag[i + 1]; r = mag[i - 1]; // 水平方向
+                            } else if (angle >= 22.5 && angle < 67.5) {
+                                q = mag[i + w + 1]; r = mag[i - w - 1]; // 對角線 1
+                            } else if (angle >= 67.5 && angle < 112.5) {
+                                q = mag[i + w]; r = mag[i - w]; // 垂直方向
+                            } else if (angle >= 112.5 && angle < 157.5) {
+                                q = mag[i + w - 1]; r = mag[i - w + 1]; // 對角線 2
+                            }
+
+                            // 只有當自己是局部最強時才保留 (Peak detection)
+                            if (m >= q && m >= r) {
+                                nms[i] = m;
+                            } else {
+                                nms[i] = 0;
                             }
                         }
                     }
 
-                    if (edges.length < 10) {
-                        statusMsg.innerText = "No edges found.";
-                        return;
-                    }
+                    // 5. 雙重門檻與滯後連接 (Hysteresis Thresholding)
+                    // 強邊緣直接保留，弱邊緣只有在連接到強邊緣時才保留
+                    const highThreshold = 35; // 強門檻
+                    const lowThreshold = 10;  // 弱門檻
+                    
+                    const edges = [];
+                    const visited = new Uint8Array(w * h);
+                    const stack = [];
 
-                    statusMsg.innerText = "Connecting lines...";
-
-                    setTimeout(() => {
-                        // 2. 提取輪廓 (Extract Contours)
-                        const visited = new Uint8Array(w * h);
-                        const allSegments = [];
-
-                        for (let i = 0; i < edges.length; i++) {
-                            const startPt = edges[i];
-                            const idx = startPt.y * w + startPt.x;
+                    for (let i = 0; i < w * h; i++) {
+                        if (nms[i] >= highThreshold && !visited[i]) {
+                            // 發現一個強起點，開始追蹤整條線
+                            let segment = [];
+                            stack.push(i);
+                            visited[i] = 1;
                             
-                            if (visited[idx]) continue;
-
-                            let currentPath = [];
-                            let stack = [startPt];
-                            visited[idx] = 1;
-
                             while (stack.length > 0) {
-                                const pt = stack.pop();
-                                currentPath.push(pt);
+                                const currIdx = stack.pop();
+                                const cx = currIdx % w;
+                                const cy = Math.floor(currIdx / w);
+                                segment.push({x: cx, y: cy});
 
-                                const neighbors = [];
-                                // 搜尋鄰近點
+                                // 檢查 8 鄰域
                                 for (let dy = -1; dy <= 1; dy++) {
                                     for (let dx = -1; dx <= 1; dx++) {
                                         if (dx === 0 && dy === 0) continue;
-                                        const nx = pt.x + dx;
-                                        const ny = pt.y + dy;
-                                        const nIdx = ny * w + nx;
-                                        
-                                        if (nx >= 0 && nx < w && ny >= 0 && ny < h && 
-                                            edgeMap[nIdx] === 1 && !visited[nIdx]) {
-                                            neighbors.push({x: nx, y: ny, idx: nIdx});
+                                        const nx = cx + dx;
+                                        const ny = cy + dy;
+                                        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                                            const ni = ny * w + nx;
+                                            // 只要大於弱門檻且未訪問過，就加入線條
+                                            if (!visited[ni] && nms[ni] >= lowThreshold) {
+                                                visited[ni] = 1;
+                                                stack.push(ni);
+                                            }
                                         }
                                     }
                                 }
-
-                                if (neighbors.length > 0) {
-                                    const next = neighbors[0];
-                                    visited[next.idx] = 1;
-                                    stack.push(next);
-                                }
                             }
-
-                            // 降低長度過濾門檻：保留更多短線條（內部細節）
-                            if (currentPath.length > 6) { 
-                                allSegments.push(currentPath);
-                            }
+                            // 過濾掉太短的噪點線段
+                            if (segment.length > 5) edges.push(segment);
                         }
+                    }
 
-                        if (allSegments.length === 0) {
-                            statusMsg.innerText = "No valid contours.";
-                            return;
-                        }
+                    statusMsg.innerText = `Vectorizing (${edges.length} paths)...`;
 
-                        // 3. 智慧拼接 (Smart Stitching)
-                        // 策略：允許「筆」跳起來移動到下一個最近的線段，不再限制距離
-                        allSegments.sort((a, b) => b.length - a.length); // 先畫最長的線
+                    // 6. 路徑拼接 (Greedy Stitching)
+                    setTimeout(() => {
+                        edges.sort((a, b) => b.length - a.length); // 先畫長線
                         
-                        let finalPath = allSegments[0];
-                        const usedSegments = new Uint8Array(allSegments.length);
-                        usedSegments[0] = 1;
+                        let finalPath = [];
+                        let unvisited = edges.map(e => ({path: e, used: false}));
+                        
+                        if (unvisited.length === 0) {
+                             statusMsg.innerText = "No edges found."; return;
+                        }
 
-                        // 這裡我們要盡可能把所有線段都連起來，不管它們相隔多遠
-                        for (let step = 0; step < allSegments.length - 1; step++) {
+                        // 從最長的一條線開始
+                        let currSeg = unvisited[0];
+                        currSeg.used = true;
+                        finalPath = finalPath.concat(currSeg.path);
+                        
+                        const maxTotalPoints = 20000; // 安全上限
+
+                        while(true) {
+                            const tail = finalPath[finalPath.length-1];
                             let bestIdx = -1;
-                            let minInfo = { dist: Infinity, reverse: false };
-                            const tail = finalPath[finalPath.length - 1];
+                            let minDst = Infinity;
+                            let reverse = false;
 
-                            // 尋找下一個最近的未畫線段
-                            // 為了效能，我們只掃描前 1000 個候選者（通常足夠）
-                            const searchCount = Math.min(allSegments.length, 1000);
-                            let scanCount = 0;
+                            // 搜尋最近的下一條線
+                            const scanLimit = Math.min(unvisited.length, 500); 
+                            let scanned = 0;
 
-                            for (let j = 1; j < allSegments.length; j++) {
-                                if (usedSegments[j]) continue;
-                                scanCount++;
-                                if (scanCount > searchCount) break;
-                                
-                                const seg = allSegments[j];
+                            for(let i=0; i<unvisited.length; i++) {
+                                if(unvisited[i].used) continue;
+                                scanned++;
+                                if(scanned > scanLimit) break;
+
+                                const seg = unvisited[i].path;
                                 const head = seg[0];
-                                const segTail = seg[seg.length - 1];
+                                const feet = seg[seg.length-1];
 
-                                const d1 = (tail.x - head.x)**2 + (tail.y - head.y)**2;
-                                const d2 = (tail.x - segTail.x)**2 + (tail.y - segTail.y)**2;
+                                const d1 = Math.pow(tail.x - head.x, 2) + Math.pow(tail.y - head.y, 2);
+                                const d2 = Math.pow(tail.x - feet.x, 2) + Math.pow(tail.y - feet.y, 2);
 
-                                if (d1 < minInfo.dist) {
-                                    minInfo = { dist: d1, reverse: false };
-                                    bestIdx = j;
-                                }
-                                if (d2 < minInfo.dist) {
-                                    minInfo = { dist: d2, reverse: true };
-                                    bestIdx = j;
-                                }
+                                if (d1 < minDst) { minDst = d1; bestIdx = i; reverse = false; }
+                                if (d2 < minDst) { minDst = d2; bestIdx = i; reverse = true; }
                             }
 
                             if (bestIdx !== -1) {
-                                usedSegments[bestIdx] = 1;
-                                let nextSeg = allSegments[bestIdx];
-                                if (minInfo.reverse) {
-                                    nextSeg = nextSeg.slice().reverse();
-                                }
-                                // 注意：這裡我們允許「跳躍」，直接把不連續的點加進去
-                                finalPath = finalPath.concat(nextSeg);
+                                unvisited[bestIdx].used = true;
+                                let seg = unvisited[bestIdx].path;
+                                if(reverse) seg = seg.slice().reverse();
+                                finalPath = finalPath.concat(seg);
                             } else {
-                                // 如果真的找不到（不太可能），就找第一個沒用過的接上去
-                                const firstUnused = allSegments.findIndex((_, idx) => !usedSegments[idx] && idx > 0);
-                                if (firstUnused !== -1) {
-                                    usedSegments[firstUnused] = 1;
-                                    finalPath = finalPath.concat(allSegments[firstUnused]);
+                                // 斷掉了，隨便找一條沒畫過的繼續
+                                const next = unvisited.find(u => !u.used);
+                                if(next) {
+                                    next.used = true;
+                                    finalPath = finalPath.concat(next.path);
                                 } else {
-                                    break; // 真的沒了
+                                    break; // 全部畫完了
                                 }
                             }
+                            
+                            if (finalPath.length > maxTotalPoints) break;
                         }
 
-                        // 4. Smoothing (稍微平滑化)
-                        const smoothed = [];
-                        const windowSize = 1;
-                        for(let i=0; i<finalPath.length; i++) {
-                            let sumX = 0, sumY = 0, n = 0;
-                            for(let j = -windowSize; j <= windowSize; j++) {
-                                let idx = i + j;
-                                if (idx >= 0 && idx < finalPath.length) {
-                                    sumX += finalPath[idx].x;
-                                    sumY += finalPath[idx].y;
-                                    n++;
-                                }
-                            }
-                            smoothed.push({x: sumX/n, y: sumY/n});
-                        }
-
-                        // 5. Scale & Center
+                        // 7. 縮放與置中
                         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-                        for(let p of smoothed) {
-                            minX = Math.min(minX, p.x);
-                            maxX = Math.max(maxX, p.x);
-                            minY = Math.min(minY, p.y);
-                            maxY = Math.max(maxY, p.y);
+                        for(let p of finalPath) {
+                            minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
+                            minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
                         }
-
                         const contentW = maxX - minX;
                         const contentH = maxY - minY;
-                        const screenScale = Math.min(canvasDraw.width * 0.75, canvasDraw.height * 0.75) / Math.max(contentW, contentH);
+                        const screenScale = Math.min(canvasDraw.width * 0.8, canvasDraw.height * 0.8) / Math.max(contentW, contentH);
                         const centerX = (minX + maxX) / 2;
                         const centerY = (minY + maxY) / 2;
 
-                        state.path = smoothed.map(p => ({
+                        state.path = finalPath.map(p => ({
                             x: (p.x - centerX) * screenScale,
                             y: (p.y - centerY) * screenScale
                         }));
-
-                        state.isImageMode = true;
-                        state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
                         
-                        ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
-                        state.lastPoint = null;
-
-                        // 6. Downsampling (限制點數在 8000~10000 左右)
-                        // 這是你要求的：回歸 10,000 點
-                        const targetPoints = 8000; 
+                        // 最後的點數控制
+                        const targetPoints = 10000; 
                         if (state.path.length > targetPoints) {
                             const step = Math.ceil(state.path.length / targetPoints);
                             state.path = state.path.filter((_, i) => i % step === 0);
                         }
-                        
+
+                        state.isImageMode = true;
+                        state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
                         statusMsg.innerText = `DFT Ready (${state.path.length} pts)`;
                         
-                        setTimeout(() => {
-                            calculateFourier(1);
-                        }, 50);
+                        setTimeout(() => calculateFourier(1), 50);
 
                     }, 50);
                 }
@@ -1944,53 +1962,74 @@
             state.time -= 0.02;
         }
 
-       // --- Vibe Features (Audio & 3D) ---
+// --- Vibe Features (Unified) ---
         let audioCtx, analyser, dataArray;
-        let isAudioActive = false;
-        let is3DMode = false;
+        let isVibeActive = false;
 
-        window.toggle3D = () => {
-            is3DMode = !is3DMode;
+        window.toggleVibeMode = async () => {
+            isVibeActive = !isVibeActive;
+            const btn = document.getElementById('btn-vibe');
             const wrapper = document.getElementById('studio-canvas-wrapper');
-            const btn = document.getElementById('btn-3d');
-            if (is3DMode) {
+
+            // 同步更新全域變數 (讓 drawStudioLoop 讀取)
+            is3DMode = isVibeActive; 
+            isAudioActive = isVibeActive;
+
+            if (isVibeActive) {
+                // 1. 啟動視覺效果 (3D)
                 wrapper.classList.add('mode-3d');
-                btn.innerText = "3D VIEW";
+                
+                // 2. 啟動聽覺效果 (Mic)
+                try {
+                    if (!audioCtx) {
+                        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        analyser = audioCtx.createAnalyser();
+                        analyser.fftSize = 256;
+                        dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    }
+                    if (audioCtx.state === 'suspended') {
+                        await audioCtx.resume();
+                    }
+                    // 簡單檢查：如果還沒連接過串流才連接 (避免重複 echo)
+                    if (!window.vibeStreamSource) {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        window.vibeStreamSource = audioCtx.createMediaStreamSource(stream);
+                        window.vibeStreamSource.connect(analyser);
+                    }
+                } catch (err) {
+                    console.error("Mic Error:", err);
+                    statusMsg.innerText = "Mic access failed, visuals only.";
+                }
+
+                // UI 更新
+                btn.innerHTML = "<span>🔥 VIBE MODE ON</span>";
                 btn.style.background = "rgba(168, 85, 247, 0.2)";
-                statusMsg.innerText = "3D Mode: Drawing disabled";
+                btn.style.borderColor = "rgba(168, 85, 247, 0.8)";
+                btn.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.3)";
+                statusMsg.innerText = "Immersive Mode Active";
             } else {
+                // 1. 關閉視覺效果
                 wrapper.classList.remove('mode-3d');
-                btn.innerText = "2D VIEW";
+                wrapper.style.transform = ''; // 強制歸位
+
+                // 2. 關閉聽覺效果 (不關閉 Context，只標記狀態讓 Loop 停止讀取)
+                // 這樣下次開啟會更快
+                
+                // UI 更新
+                btn.innerHTML = "<span>⚡ VIBE MODE OFF</span>";
                 btn.style.background = "transparent";
-                statusMsg.innerText = "2D Mode: Ready";
+                btn.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                btn.style.boxShadow = "none";
+                statusMsg.innerText = "Standard Mode";
             }
         };
 
-        window.toggleAudio = async () => {
-            if (!isAudioActive) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    analyser = audioCtx.createAnalyser();
-                    analyser.fftSize = 256;
-                    dataArray = new Uint8Array(analyser.frequencyBinCount);
-                    
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    const source = audioCtx.createMediaStreamSource(stream);
-                    source.connect(analyser);
-                    
-                    isAudioActive = true;
-                    document.getElementById('btn-mic').innerText = "MIC ON";
-                    document.getElementById('btn-mic').style.background = "rgba(34, 197, 94, 0.2)";
-                } catch (err) {
-                    alert("無法存取麥克風 / Mic Access Denied");
-                    console.error(err);
-                }
-            } else {
-                if(audioCtx) audioCtx.close();
-                isAudioActive = false;
-                document.getElementById('btn-mic').innerText = "MIC OFF";
-                document.getElementById('btn-mic').style.background = "transparent";
-            }
+        // 新增：清除軌跡功能
+        window.clearTrail = () => {
+            // 只清空「軌跡層」，不影響「繪圖層(圓圈)」
+            ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
+            state.lastPoint = null; // 重置上一點，避免出現跨越畫布的長線
+            statusMsg.innerText = "Canvas Cleared";
         };
 
         function getBassFactor() {
@@ -2002,22 +2041,32 @@
             return (sum / 10) / 255; // 回傳 0.0 ~ 1.0
         }
 
-        // --- Updated Rendering Loop ---
-        function drawStudioLoop() {
+       function drawStudioLoop() {
             if(state.page !== 'studio') return;
 
             // 1. 音訊驅動參數
             const bass = getBassFactor(); 
-            const pulse = 1 + bass * 0.5; // 隨重低音放大 1.0x ~ 1.5x
+            
+            // 2. 3D 舞台動態特效 (The Vibe)
+            if (is3DMode) {
+                const wrapper = document.getElementById('studio-canvas-wrapper');
+                // 讓舞台隨著重低音在 Z 軸彈跳 (0px ~ 200px)
+                const bounceZ = bass * 200;     
+                // 讓舞台角度隨著節奏微微抬起 (Headbanging effect)
+                const tiltX = bass * 10;        
+                
+                // 動態寫入 CSS (基底數值與 style.css 保持一致，並疊加動畫)
+                wrapper.style.transform = `perspective(1000px) rotateX(${60 - tiltX}deg) rotateZ(20deg) scale(0.65) translateZ(${bounceZ}px)`;
+            }
 
-            // 每一幀清空 (注意：我們這次讓它在 3D 模式下不留殘影，或者你可以自行決定)
-            // 為了配合音樂跳動，建議清空圓圈層，保留軌跡層
+            // 清空繪圖層
             ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
 
-            // 2. 畫出灰色底圖 (Ghost Path)
+            // 3. 畫出灰色底圖 (Ghost Path)
             if (state.path.length > 0) {
                 ctxDraw.beginPath();
-                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`; // 線條也會隨音樂變亮
+                // 線條亮度隨音樂閃爍
+                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`; 
                 ctxDraw.lineWidth = 2;
                 
                 const startX = state.isImageMode ? state.origin.x : 0;
@@ -2028,7 +2077,7 @@
                 ctxDraw.stroke();
             }
 
-            // 3. 傅立葉動畫核心
+            // 4. 傅立葉動畫核心
             if (state.fourierX.length > 0) {
                 let x = state.origin.x;
                 let y = state.origin.y;
@@ -2039,16 +2088,35 @@
                     let radius = state.fourierX[i].amp;
                     let phase = state.fourierX[i].phase;
 
-                    // 讓音樂影響時間流動速度？(可選)
-                    // state.drawTime += bass * 0.01; 
-
                     x += radius * Math.cos(freq * state.drawTime + phase);
                     y += radius * Math.sin(freq * state.drawTime + phase);
 
                     if (radius > 0.5) { 
+                        // --- 3D 高度模擬 (Levitation Effect) ---
+                        if (is3DMode && radius > 2) {
+                            // 計算懸浮高度 (隨音量變高)
+                            const levitation = 10 + bass * 80; 
+                            
+                            // A. 繪製「地板陰影」 (Shadow) - 位於圓圈下方
+                            ctxDraw.beginPath();
+                            ctxDraw.strokeStyle = "rgba(0, 0, 0, 0.5)"; // 深色陰影
+                            ctxDraw.lineWidth = 2;
+                            // 陰影畫在 Y 軸偏移處 (視覺上的下方/遠方)
+                            ctxDraw.arc(prevX, prevY + levitation, radius, 0, Math.PI * 2);
+                            ctxDraw.stroke();
+
+                            // B. 繪製「能量支柱」 (Pillar) - 連接圓圈與陰影
+                            ctxDraw.beginPath();
+                            ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.1})`; // 淡色支柱
+                            ctxDraw.moveTo(prevX, prevY + radius); // 圓圈底部
+                            ctxDraw.lineTo(prevX, prevY + levitation + radius); // 陰影底部
+                            ctxDraw.stroke();
+                        }
+                        // -------------------------------------
+
                         ctxDraw.beginPath();
-                        // 音樂越強，圓圈顏色越豐富 (加入一點青色混色)
-                        ctxDraw.strokeStyle = `rgba(${255 - bass*255}, 255, 255, 0.3)`; 
+                        // 圓圈顏色隨音樂變換 (青色/白色閃爍)
+                        ctxDraw.strokeStyle = `rgba(${150 - bass*150}, ${255 - bass*50}, 255, 0.4)`; 
                         ctxDraw.lineWidth = 1;
                         ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
                         ctxDraw.stroke();
@@ -2062,7 +2130,7 @@
                     }
                 }
 
-                // 4. 畫出白色軌跡 (Trail)
+                // 5. 畫出白色軌跡 (Trail)
                 if (state.lastPoint) {
                     const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);                    
                     const jumpThreshold = 2 + state.drawSpeed * 3; 
@@ -2073,8 +2141,8 @@
                     }
 
                     ctxTrail.beginPath();
-                    // 線條寬度隨音樂跳動！
-                    ctxTrail.lineWidth = 2.5 + bass * 8; 
+                    // 軌跡寬度隨重低音變粗
+                    ctxTrail.lineWidth = 2.5 + bass * 10; 
                     ctxTrail.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
                     ctxTrail.lineCap = "round";
                     ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y);
@@ -2087,7 +2155,7 @@
                 const dt = (2 * Math.PI / state.fourierX.length);
                 state.drawTime += dt * state.drawSpeed;
 
-                // 5. 循環重置 (不清除軌跡，無限疊加)
+                // 6. 循環重置
                 if (state.drawTime > 2 * Math.PI) {
                     state.drawTime = 0;
                     state.lastPoint = null;
