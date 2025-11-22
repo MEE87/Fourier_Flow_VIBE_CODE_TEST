@@ -304,6 +304,15 @@
         ::-webkit-scrollbar-track { background: #050505; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
+    <style>
+        #home-controls {
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        #home-controls:hover {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body class="font-sans selection:bg-white selection:text-black">
 
@@ -313,7 +322,7 @@
             Fourier<span class="font-bold">Flow</span>
         </div>
         <div class="flex gap-8 text-xs tracking-widest font-mono pointer-events-auto bg-black/50 backdrop-blur-md px-6 py-2 rounded-full border border-white/10">
-            <div onclick="showPage('home')" id="nav-home" class="nav-item active">VISUALIZER</div>
+            <div onclick="showPage('home')" id="nav-home" class="nav-item active">HOME</div>
             <div onclick="showPage('knowledge')" id="nav-knowledge" class="nav-item">KNOWLEDGE</div>
             <div onclick="showPage('studio')" id="nav-studio" class="nav-item">STUDIO</div>
         </div>
@@ -333,10 +342,10 @@
     <section id="page-home" class="page active">
         <canvas id="canvas-wave" class="canvas-layer"></canvas>
         <div class="absolute top-1/2 left-10 md:left-20 transform -translate-y-1/2 pointer-events-none mix-blend-difference">
-            <h1 class="text-6xl md:text-8xl font-thin tracking-tighter mb-4 leading-none">Math<br>is Art</h1>
-            <p class="text-xs md:text-sm text-gray-400 font-mono tracking-widest max-w-xs leading-relaxed">Deconstructing reality into circles.</p>
+            <h1 class="text-6xl md:text-8xl font-thin tracking-tighter mb-4 leading-none">化繁為簡</h1>
+            <p class="text-xs md:text-sm text-gray-400 font-mono tracking-widest max-w-xs leading-relaxed">將現實解構為圓的藝術。</p>
         </div>
-        <div class="absolute bottom-10 right-10 glass-panel p-6 rounded-lg w-64">
+        <div id="home-controls" class="absolute bottom-10 right-10 glass-panel p-6 rounded-lg w-64">
             <div class="flex justify-between text-xs text-gray-400 mb-4 tracking-widest"><span>HARMONICS</span><span id="wave-n-display">5</span></div>
             <input type="range" id="wave-slider" class="w-full mb-4" min="1" max="50" value="5">
             <div class="flex gap-2">
@@ -566,7 +575,7 @@
     </section>
 
     <!-- PAGE 3: STUDIO -->
-    <section id="page-studio" class="page">
+<section id="page-studio" class="page">
         <canvas id="canvas-trail" class="canvas-layer"></canvas>
         <canvas id="canvas-draw" class="canvas-layer"></canvas>
 
@@ -579,6 +588,7 @@
                         UPLOAD IMG
                         <input type="file" accept="image/*" onchange="processImage(this)" class="hidden">
                     </label>
+                    <button onclick="saveImage()" class="col-span-2 py-3 border border-blue-500/30 text-blue-400 text-xs tracking-widest hover:bg-blue-500/10 transition rounded">SAVE IMAGE</button>
                 </div>
             </div>
             <div class="p-4 bg-white/5 rounded border border-white/10">
@@ -1597,17 +1607,17 @@
         }
 
         // --- V7.0 Image Processing: Segment Stitching ---
-        window.processImage = function(input) {
+ window.processImage = function(input) {
             if (!input.files || !input.files[0]) return;
-            statusMsg.innerText = "Scanning...";
+            statusMsg.innerText = "Scanning (Detail Mode)...";
             
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const tempC = document.createElement('canvas');
-                    // Upscale for better detection
-                    const scale = 600 / Math.max(img.width, img.height); 
+                    // 保持適當的解析度以捕捉細節，但不要過高導致雜訊
+                    const scale = 1200 / Math.max(img.width, img.height); 
                     const w = Math.floor(img.width * scale);
                     const h = Math.floor(img.height * scale);
                     tempC.width = w;
@@ -1622,9 +1632,12 @@
                         return (data[i] + data[i+1] + data[i+2]) / 3;
                     };
 
-                    // 1. Sobel Edge Detection
+                    // 1. Sobel 邊緣檢測 (調整敏感度)
                     const edgeMap = new Uint8Array(w * h); 
                     const edges = [];
+                    
+                    // 門檻值：越低細節越多，但也越多雜訊。設為 35 是一個平衡點。
+                    const threshold = 35; 
 
                     for (let y = 1; y < h - 1; y++) {
                         for (let x = 1; x < w - 1; x++) {
@@ -1634,8 +1647,7 @@
                             const gy = -getVal(x-1, y-1) - 2*getVal(x, y-1) - getVal(x+1, y-1) +
                                        getVal(x-1, y+1) + 2*getVal(x, y+1) + getVal(x+1, y+1);
                             
-                            // Low threshold to catch details
-                            if (Math.sqrt(gx*gx + gy*gy) > 45) {
+                            if (Math.sqrt(gx*gx + gy*gy) > threshold) {
                                 edgeMap[y * w + x] = 1;
                                 edges.push({x, y});
                             }
@@ -1647,10 +1659,10 @@
                         return;
                     }
 
-                    statusMsg.innerText = "Linking Segments...";
+                    statusMsg.innerText = "Connecting lines...";
 
                     setTimeout(() => {
-                        // 2. Extract All Contours
+                        // 2. 提取輪廓 (Extract Contours)
                         const visited = new Uint8Array(w * h);
                         const allSegments = [];
 
@@ -1669,6 +1681,7 @@
                                 currentPath.push(pt);
 
                                 const neighbors = [];
+                                // 搜尋鄰近點
                                 for (let dy = -1; dy <= 1; dy++) {
                                     for (let dx = -1; dx <= 1; dx++) {
                                         if (dx === 0 && dy === 0) continue;
@@ -1690,7 +1703,8 @@
                                 }
                             }
 
-                            if (currentPath.length > 15) {
+                            // 降低長度過濾門檻：保留更多短線條（內部細節）
+                            if (currentPath.length > 6) { 
                                 allSegments.push(currentPath);
                             }
                         }
@@ -1700,20 +1714,29 @@
                             return;
                         }
 
-                        // 3. Stitching Segments (Nearest Neighbor)
-                        allSegments.sort((a, b) => b.length - a.length);
+                        // 3. 智慧拼接 (Smart Stitching)
+                        // 策略：允許「筆」跳起來移動到下一個最近的線段，不再限制距離
+                        allSegments.sort((a, b) => b.length - a.length); // 先畫最長的線
                         
                         let finalPath = allSegments[0];
                         const usedSegments = new Uint8Array(allSegments.length);
                         usedSegments[0] = 1;
 
-                        for (let k = 1; k < allSegments.length; k++) {
+                        // 這裡我們要盡可能把所有線段都連起來，不管它們相隔多遠
+                        for (let step = 0; step < allSegments.length - 1; step++) {
                             let bestIdx = -1;
                             let minInfo = { dist: Infinity, reverse: false };
                             const tail = finalPath[finalPath.length - 1];
 
+                            // 尋找下一個最近的未畫線段
+                            // 為了效能，我們只掃描前 1000 個候選者（通常足夠）
+                            const searchCount = Math.min(allSegments.length, 1000);
+                            let scanCount = 0;
+
                             for (let j = 1; j < allSegments.length; j++) {
                                 if (usedSegments[j]) continue;
+                                scanCount++;
+                                if (scanCount > searchCount) break;
                                 
                                 const seg = allSegments[j];
                                 const head = seg[0];
@@ -1738,15 +1761,23 @@
                                 if (minInfo.reverse) {
                                     nextSeg = nextSeg.slice().reverse();
                                 }
+                                // 注意：這裡我們允許「跳躍」，直接把不連續的點加進去
                                 finalPath = finalPath.concat(nextSeg);
                             } else {
-                                break;
+                                // 如果真的找不到（不太可能），就找第一個沒用過的接上去
+                                const firstUnused = allSegments.findIndex((_, idx) => !usedSegments[idx] && idx > 0);
+                                if (firstUnused !== -1) {
+                                    usedSegments[firstUnused] = 1;
+                                    finalPath = finalPath.concat(allSegments[firstUnused]);
+                                } else {
+                                    break; // 真的沒了
+                                }
                             }
                         }
 
-                        // 4. Smoothing
+                        // 4. Smoothing (稍微平滑化)
                         const smoothed = [];
-                        const windowSize = 2;
+                        const windowSize = 1;
                         for(let i=0; i<finalPath.length; i++) {
                             let sumX = 0, sumY = 0, n = 0;
                             for(let j = -windowSize; j <= windowSize; j++) {
@@ -1771,7 +1802,7 @@
 
                         const contentW = maxX - minX;
                         const contentH = maxY - minY;
-                        const screenScale = Math.min(canvasDraw.width * 0.7, canvasDraw.height * 0.7) / Math.max(contentW, contentH);
+                        const screenScale = Math.min(canvasDraw.width * 0.75, canvasDraw.height * 0.75) / Math.max(contentW, contentH);
                         const centerX = (minX + maxX) / 2;
                         const centerY = (minY + maxY) / 2;
 
@@ -1783,18 +1814,23 @@
                         state.isImageMode = true;
                         state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
                         
-                        // Clear Trail
                         ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
                         state.lastPoint = null;
 
-                        // 6. Downsampling (Limit to ~3000 points for performance)
-                        const targetPoints = 3000; 
+                        // 6. Downsampling (限制點數在 8000~10000 左右)
+                        // 這是你要求的：回歸 10,000 點
+                        const targetPoints = 8000; 
                         if (state.path.length > targetPoints) {
                             const step = Math.ceil(state.path.length / targetPoints);
                             state.path = state.path.filter((_, i) => i % step === 0);
                         }
+                        
+                        statusMsg.innerText = `DFT Ready (${state.path.length} pts)`;
+                        
+                        setTimeout(() => {
+                            calculateFourier(1);
+                        }, 50);
 
-                        calculateFourier(1);
                     }, 50);
                 }
                 img.src = e.target.result;
@@ -1888,10 +1924,10 @@
         function drawStudioLoop() {
             if(state.page !== 'studio') return;
 
-            // 1. Clear Circles Layer only
+            // 1. 每一幀只清空「圓圈層」，不要清空「軌跡層」
             ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
 
-            // 2. Draw Ghost Path
+            // 2. 畫出灰色底圖 (Ghost Path)
             if (state.path.length > 0) {
                 ctxDraw.beginPath();
                 ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.05)";
@@ -1905,7 +1941,7 @@
                 ctxDraw.stroke();
             }
 
-            // 3. Fourier Animation
+            // 3. 傅立葉動畫核心
             if (state.fourierX.length > 0) {
                 let x = state.origin.x;
                 let y = state.origin.y;
@@ -1919,15 +1955,14 @@
                     x += radius * Math.cos(freq * state.drawTime + phase);
                     y += radius * Math.sin(freq * state.drawTime + phase);
 
+                    // 只有比較大的圓圈才畫出來，避免畫面太亂
                     if (radius > 0.5) { 
-                        // High Contrast Circles
                         ctxDraw.beginPath();
                         ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.3)"; 
                         ctxDraw.lineWidth = 1;
                         ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
                         ctxDraw.stroke();
 
-                        // High Contrast Arms
                         ctxDraw.beginPath();
                         ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)"; 
                         ctxDraw.lineWidth = 1.5;
@@ -1937,14 +1972,13 @@
                     }
                 }
 
-                // 4. Draw Trail with Flying Line Detection
+                // 4. 畫出白色軌跡 (Trail)
                 if (state.lastPoint) {
-                    const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);
-                    // Jump threshold scales with speed
+                    const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);                    
                     const jumpThreshold = 2 + state.drawSpeed * 3; 
                     
                     let opacity = 1;
-                    // If it jumps too far, reduce opacity to hide flying lines
+                    // 如果跳躍距離太遠（雜訊），就讓它變透明一點
                     if (dist > jumpThreshold) {
                         opacity = Math.max(0.02, jumpThreshold / (dist * 1.5));
                     }
@@ -1963,10 +1997,12 @@
                 const dt = (2 * Math.PI / state.fourierX.length);
                 state.drawTime += dt * state.drawSpeed;
 
+                // 5. 循環檢測
                 if (state.drawTime > 2 * Math.PI) {
                     state.drawTime = 0;
                     state.lastPoint = null;
-                    ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
+                    // ❌ 關鍵修改：我們把下面這行刪掉了，這樣畫完就不會消失！
+                    // ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
                 }
             }
         }
@@ -2005,6 +2041,27 @@
         }
         animate();
 
+        window.saveImage = () => {
+            // 1. 創建一個臨時畫布來合成背景
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvasTrail.width;
+            tempCanvas.height = canvasTrail.height;
+            const tCtx = tempCanvas.getContext('2d');
+
+            // 2. 填入黑色背景 (因為 canvasTrail 本身是透明的)
+            tCtx.fillStyle = "#050505";
+            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            // 3. 把目前的軌跡層 (canvas-trail) 畫上去
+            tCtx.drawImage(canvasTrail, 0, 0);
+
+            // 4. 觸發下載
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            link.download = `fourier-art-${timestamp}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+        };
     </script>
 </body>
 </html>
