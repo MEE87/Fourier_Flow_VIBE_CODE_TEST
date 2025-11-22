@@ -40,7 +40,17 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;500;600&family=JetBrains+Mono:wght@300&display=swap');
-
+        /* 3D Vibe Style */
+        .mode-3d {
+            transform: perspective(1000px) rotateX(60deg) rotateZ(20deg) scale(0.65);
+            transform-style: preserve-3d;
+            pointer-events: none; /* 3D 模式下禁止滑鼠繪圖以免錯位 */
+        }
+        /* 讓畫布有浮起來的感覺 */
+        .mode-3d canvas {
+            box-shadow: -20px 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
         body {
             background-color: #050505;
             color: #e5e5e5;
@@ -313,6 +323,7 @@
             opacity: 1;
         }
     </style>
+    
 </head>
 <body class="font-sans selection:bg-white selection:text-black">
 
@@ -576,8 +587,10 @@
 
     <!-- PAGE 3: STUDIO -->
 <section id="page-studio" class="page">
-        <canvas id="canvas-trail" class="canvas-layer"></canvas>
-        <canvas id="canvas-draw" class="canvas-layer"></canvas>
+        <div id="studio-canvas-wrapper" class="absolute top-0 left-0 w-full h-full transition-all duration-1000 ease-[cubic-bezier(0.2,0,0.2,1)] origin-center">
+            <canvas id="canvas-trail" class="canvas-layer"></canvas>
+            <canvas id="canvas-draw" class="canvas-layer"></canvas>
+        </div>
 
         <div class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
             <div>
@@ -591,13 +604,22 @@
                     <button onclick="saveImage()" class="col-span-2 py-3 border border-blue-500/30 text-blue-400 text-xs tracking-widest hover:bg-blue-500/10 transition rounded">SAVE IMAGE</button>
                 </div>
             </div>
+            
+            <div class="p-4 bg-white/5 rounded border border-white/10">
+                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">VIBE MODE</label>
+                <div class="flex gap-2">
+                    <button id="btn-mic" onclick="toggleAudio()" class="flex-1 py-2 text-[10px] border border-green-500/30 text-green-400 hover:bg-green-500/10 transition rounded">MIC OFF</button>
+                    <button id="btn-3d" onclick="toggle3D()" class="flex-1 py-2 text-[10px] border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition rounded">2D VIEW</button>
+                </div>
+            </div>
+
             <div class="p-4 bg-white/5 rounded border border-white/10">
                 <h3 class="text-xs font-bold text-white mb-1">STATUS</h3>
                 <p id="status-msg" class="text-[10px] text-gray-400 leading-relaxed font-mono">Waiting for input...</p>
             </div>
             <div>
                 <div class="flex justify-between text-[10px] text-gray-500 mb-2 items-center">
-                    <span>SPEED (0.001 - 1000)</span>
+                    <span>SPEED</span>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="number" id="speed-input" class="w-full p-2 text-sm rounded" min="0.001" max="1000" step="0.1" value="1">
@@ -1855,6 +1877,7 @@
             state.lastPoint = null;
             statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
         }
+        
 
         // --- Rendering Loops ---
 
@@ -1921,16 +1944,80 @@
             state.time -= 0.02;
         }
 
+       // --- Vibe Features (Audio & 3D) ---
+        let audioCtx, analyser, dataArray;
+        let isAudioActive = false;
+        let is3DMode = false;
+
+        window.toggle3D = () => {
+            is3DMode = !is3DMode;
+            const wrapper = document.getElementById('studio-canvas-wrapper');
+            const btn = document.getElementById('btn-3d');
+            if (is3DMode) {
+                wrapper.classList.add('mode-3d');
+                btn.innerText = "3D VIEW";
+                btn.style.background = "rgba(168, 85, 247, 0.2)";
+                statusMsg.innerText = "3D Mode: Drawing disabled";
+            } else {
+                wrapper.classList.remove('mode-3d');
+                btn.innerText = "2D VIEW";
+                btn.style.background = "transparent";
+                statusMsg.innerText = "2D Mode: Ready";
+            }
+        };
+
+        window.toggleAudio = async () => {
+            if (!isAudioActive) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 256;
+                    dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const source = audioCtx.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                    
+                    isAudioActive = true;
+                    document.getElementById('btn-mic').innerText = "MIC ON";
+                    document.getElementById('btn-mic').style.background = "rgba(34, 197, 94, 0.2)";
+                } catch (err) {
+                    alert("無法存取麥克風 / Mic Access Denied");
+                    console.error(err);
+                }
+            } else {
+                if(audioCtx) audioCtx.close();
+                isAudioActive = false;
+                document.getElementById('btn-mic').innerText = "MIC OFF";
+                document.getElementById('btn-mic').style.background = "transparent";
+            }
+        };
+
+        function getBassFactor() {
+            if (!isAudioActive || !analyser) return 0;
+            analyser.getByteFrequencyData(dataArray);
+            // 取低頻 (Bass) 的平均值
+            let sum = 0;
+            for(let i=0; i<10; i++) sum += dataArray[i];
+            return (sum / 10) / 255; // 回傳 0.0 ~ 1.0
+        }
+
+        // --- Updated Rendering Loop ---
         function drawStudioLoop() {
             if(state.page !== 'studio') return;
 
-            // 1. 每一幀只清空「圓圈層」，不要清空「軌跡層」
+            // 1. 音訊驅動參數
+            const bass = getBassFactor(); 
+            const pulse = 1 + bass * 0.5; // 隨重低音放大 1.0x ~ 1.5x
+
+            // 每一幀清空 (注意：我們這次讓它在 3D 模式下不留殘影，或者你可以自行決定)
+            // 為了配合音樂跳動，建議清空圓圈層，保留軌跡層
             ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
 
             // 2. 畫出灰色底圖 (Ghost Path)
             if (state.path.length > 0) {
                 ctxDraw.beginPath();
-                ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.05)";
+                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`; // 線條也會隨音樂變亮
                 ctxDraw.lineWidth = 2;
                 
                 const startX = state.isImageMode ? state.origin.x : 0;
@@ -1952,13 +2039,16 @@
                     let radius = state.fourierX[i].amp;
                     let phase = state.fourierX[i].phase;
 
+                    // 讓音樂影響時間流動速度？(可選)
+                    // state.drawTime += bass * 0.01; 
+
                     x += radius * Math.cos(freq * state.drawTime + phase);
                     y += radius * Math.sin(freq * state.drawTime + phase);
 
-                    // 只有比較大的圓圈才畫出來，避免畫面太亂
                     if (radius > 0.5) { 
                         ctxDraw.beginPath();
-                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.3)"; 
+                        // 音樂越強，圓圈顏色越豐富 (加入一點青色混色)
+                        ctxDraw.strokeStyle = `rgba(${255 - bass*255}, 255, 255, 0.3)`; 
                         ctxDraw.lineWidth = 1;
                         ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
                         ctxDraw.stroke();
@@ -1978,14 +2068,14 @@
                     const jumpThreshold = 2 + state.drawSpeed * 3; 
                     
                     let opacity = 1;
-                    // 如果跳躍距離太遠（雜訊），就讓它變透明一點
                     if (dist > jumpThreshold) {
                         opacity = Math.max(0.02, jumpThreshold / (dist * 1.5));
                     }
 
                     ctxTrail.beginPath();
+                    // 線條寬度隨音樂跳動！
+                    ctxTrail.lineWidth = 2.5 + bass * 8; 
                     ctxTrail.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
-                    ctxTrail.lineWidth = 2.5;
                     ctxTrail.lineCap = "round";
                     ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y);
                     ctxTrail.lineTo(x, y);
@@ -1997,12 +2087,10 @@
                 const dt = (2 * Math.PI / state.fourierX.length);
                 state.drawTime += dt * state.drawSpeed;
 
-                // 5. 循環檢測
+                // 5. 循環重置 (不清除軌跡，無限疊加)
                 if (state.drawTime > 2 * Math.PI) {
                     state.drawTime = 0;
                     state.lastPoint = null;
-                    // ❌ 關鍵修改：我們把下面這行刪掉了，這樣畫完就不會消失！
-                    // ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
                 }
             }
         }
