@@ -587,59 +587,38 @@
 
     <!-- PAGE 3: STUDIO -->
 <section id="page-studio" class="page">
-        <div id="studio-canvas-wrapper" class="absolute top-0 left-0 w-full h-full transition-all duration-1000 ease-[cubic-bezier(0.2,0,0.2,1)] origin-center">
-            <canvas id="canvas-trail" class="canvas-layer"></canvas>
-            <canvas id="canvas-draw" class="canvas-layer"></canvas>
-        </div>
-
-        <div class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
+        <div class="absolute top-20 right-8 glass-panel rounded-xl p-5 w-72 flex flex-col gap-5 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
+            
             <div>
-                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">TOOLS</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="resetCanvas()" class="py-3 border border-red-500/30 text-red-400 text-xs tracking-widest hover:bg-red-500/10 transition rounded">RESET</button>
+                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">CANVAS TOOLS</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="resetCanvas()" class="py-3 text-[10px] border border-red-500/30 text-red-400 hover:bg-red-500/10 transition rounded font-mono">RESET ALL</button>
+                    <button onclick="clearTrail()" class="py-3 text-[10px] border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10 transition rounded font-mono">CLEAR TRAIL</button>
                     
-                    <button onclick="clearTrail()" class="py-3 border border-yellow-500/30 text-yellow-400 text-xs tracking-widest hover:bg-yellow-500/10 transition rounded">CLEAR</button>
-                    
-                    <label class="col-span-2 py-3 border border-white/20 text-white text-xs tracking-widest hover:bg-white/10 transition rounded text-center cursor-pointer bg-white/5">
-                        UPLOAD IMG
+                    <label class="col-span-2 py-3 border border-white/20 text-white text-[10px] hover:bg-white/10 transition rounded text-center cursor-pointer bg-white/5 font-mono tracking-wider">
+                        📂 UPLOAD IMAGE
                         <input type="file" accept="image/*" onchange="processImage(this)" class="hidden">
                     </label>
-                    <button onclick="saveImage()" class="col-span-2 py-3 border border-blue-500/30 text-blue-400 text-xs tracking-widest hover:bg-blue-500/10 transition rounded">SAVE IMAGE</button>
+
+                    <button onclick="saveImage()" class="col-span-2 py-3 border border-blue-500/30 text-blue-400 text-[10px] hover:bg-blue-500/10 transition rounded font-mono tracking-wider">💾 SAVE IMAGE</button>
                 </div>
             </div>
             
-            <div class="p-4 bg-white/5 rounded border border-white/10">
-                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">IMMERSIVE</label>
-                <button id="btn-vibe" onclick="toggleVibeMode()" class="w-full py-3 border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition rounded tracking-widest font-bold flex items-center justify-center gap-2">
-                    <span>⚡ VIBE MODE OFF</span>
+            <div class="border-t border-white/10"></div>
+
+            <div>
+                <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">EXPERIENCE</label>
+                <button id="btn-vibe" onclick="toggleVibeMode()" class="w-full py-4 border border-purple-500/50 text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 transition rounded text-xs font-bold tracking-[0.2em] flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                    ⚡ ENTER VIBE
                 </button>
             </div>
 
-            <div class="p-4 bg-white/5 rounded border border-white/10">
-                <h3 class="text-xs font-bold text-white mb-1">STATUS</h3>
-                <p id="status-msg" class="text-[10px] text-gray-400 leading-relaxed font-mono">Waiting for input...</p>
-            </div>
-            <div>
-                <div class="flex justify-between text-[10px] text-gray-500 mb-2 items-center">
-                    <span>SPEED</span>
+            <div class="bg-black/40 rounded p-3 border border-white/5">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] text-gray-500 font-bold">SPEED</span>
+                    <span id="status-msg" class="text-[10px] text-gray-400 font-mono truncate max-w-[100px] text-right">Ready</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" id="speed-input" class="w-full p-2 text-sm rounded" min="0.001" max="1000" step="0.1" value="1">
-                </div>
-            </div>
-        </div>
-
-            <div class="p-4 bg-white/5 rounded border border-white/10">
-                <h3 class="text-xs font-bold text-white mb-1">STATUS</h3>
-                <p id="status-msg" class="text-[10px] text-gray-400 leading-relaxed font-mono">Waiting for input...</p>
-            </div>
-            <div>
-                <div class="flex justify-between text-[10px] text-gray-500 mb-2 items-center">
-                    <span>SPEED</span>
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="number" id="speed-input" class="w-full p-2 text-sm rounded" min="0.001" max="1000" step="0.1" value="1">
-                </div>
+                <input type="number" id="speed-input" class="w-full p-1 text-xs bg-transparent border-b border-white/20 text-white font-mono text-center focus:border-purple-500 transition outline-none" min="0.001" max="1000" step="0.1" value="1">
             </div>
         </div>
     </section>
@@ -1962,24 +1941,38 @@
             state.time -= 0.02;
         }
 
-// --- Vibe Features (Unified) ---
+// --- VIBE SYSTEM REPAIR PATCH (完整修復包) ---
+        
+        // 1. 全域變數宣告 (確保不會報錯 is not defined)
         let audioCtx, analyser, dataArray;
         let isVibeActive = false;
+        let is3DMode = false;      // 補回這個變數
+        let vibeStreamSource = null; // 防止重複連接
 
+        // 2. 獲取低頻能量 (Bass) 的輔助函數
+        function getBassFactor() {
+            if (!isVibeActive || !analyser) return 0;
+            analyser.getByteFrequencyData(dataArray);
+            // 取前 10 個頻段 (低頻區) 的平均
+            let sum = 0;
+            for(let i=0; i<10; i++) sum += dataArray[i];
+            return (sum / 10) / 255; // 回傳 0.0 ~ 1.0
+        }
+
+        // 3. Vibe Mode 切換開關 (整合 3D + Mic)
         window.toggleVibeMode = async () => {
             isVibeActive = !isVibeActive;
+            is3DMode = isVibeActive; // 同步狀態
+
             const btn = document.getElementById('btn-vibe');
             const wrapper = document.getElementById('studio-canvas-wrapper');
-
-            // 同步更新全域變數 (讓 drawStudioLoop 讀取)
-            is3DMode = isVibeActive; 
-            isAudioActive = isVibeActive;
+            const status = document.getElementById('status-msg');
 
             if (isVibeActive) {
-                // 1. 啟動視覺效果 (3D)
+                // 開啟視覺
                 wrapper.classList.add('mode-3d');
                 
-                // 2. 啟動聽覺效果 (Mic)
+                // 開啟聽覺
                 try {
                     if (!audioCtx) {
                         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1990,55 +1983,149 @@
                     if (audioCtx.state === 'suspended') {
                         await audioCtx.resume();
                     }
-                    // 簡單檢查：如果還沒連接過串流才連接 (避免重複 echo)
-                    if (!window.vibeStreamSource) {
+                    // 只有當尚未連接時才請求麥克風
+                    if (!vibeStreamSource) {
                         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        window.vibeStreamSource = audioCtx.createMediaStreamSource(stream);
-                        window.vibeStreamSource.connect(analyser);
+                        vibeStreamSource = audioCtx.createMediaStreamSource(stream);
+                        vibeStreamSource.connect(analyser);
                     }
                 } catch (err) {
                     console.error("Mic Error:", err);
-                    statusMsg.innerText = "Mic access failed, visuals only.";
+                    alert("無法啟用麥克風，將僅顯示 3D 效果。");
                 }
 
-                // UI 更新
-                btn.innerHTML = "<span>🔥 VIBE MODE ON</span>";
+                // UI 變身
+                btn.innerHTML = "<span>🔥 VIBE ON</span>";
                 btn.style.background = "rgba(168, 85, 247, 0.2)";
-                btn.style.borderColor = "rgba(168, 85, 247, 0.8)";
-                btn.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.3)";
-                statusMsg.innerText = "Immersive Mode Active";
+                btn.style.borderColor = "#a855f7";
+                btn.style.boxShadow = "0 0 20px rgba(168, 85, 247, 0.4)";
+                status.innerText = "Listening...";
             } else {
-                // 1. 關閉視覺效果
+                // 關閉視覺
                 wrapper.classList.remove('mode-3d');
                 wrapper.style.transform = ''; // 強制歸位
-
-                // 2. 關閉聽覺效果 (不關閉 Context，只標記狀態讓 Loop 停止讀取)
-                // 這樣下次開啟會更快
                 
-                // UI 更新
-                btn.innerHTML = "<span>⚡ VIBE MODE OFF</span>";
-                btn.style.background = "transparent";
-                btn.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                // UI 還原
+                btn.innerHTML = "<span>⚡ ENTER VIBE</span>";
+                btn.style.background = "rgba(168, 85, 247, 0.1)";
+                btn.style.borderColor = "rgba(168, 85, 247, 0.5)";
                 btn.style.boxShadow = "none";
-                statusMsg.innerText = "Standard Mode";
+                status.innerText = "Standard Mode";
             }
         };
 
-        // 新增：清除軌跡功能
+        // 4. 清除軌跡 (不清除圓圈)
         window.clearTrail = () => {
-            // 只清空「軌跡層」，不影響「繪圖層(圓圈)」
             ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
-            state.lastPoint = null; // 重置上一點，避免出現跨越畫布的長線
-            statusMsg.innerText = "Canvas Cleared";
+            state.lastPoint = null;
+            document.getElementById('status-msg').innerText = "Trail Cleared";
         };
 
-        function getBassFactor() {
-            if (!isAudioActive || !analyser) return 0;
-            analyser.getByteFrequencyData(dataArray);
-            // 取低頻 (Bass) 的平均值
-            let sum = 0;
-            for(let i=0; i<10; i++) sum += dataArray[i];
-            return (sum / 10) / 255; // 回傳 0.0 ~ 1.0
+        // 5. 渲染迴圈 (包含 3D 彈跳與懸浮邏輯)
+        function drawStudioLoop() {
+            if(state.page !== 'studio') return;
+
+            // 取得音樂能量
+            const bass = getBassFactor(); 
+            
+            // 3D 舞台震動效果
+            if (is3DMode) {
+                const wrapper = document.getElementById('studio-canvas-wrapper');
+                const bounceZ = bass * 150;     
+                const tiltX = bass * 8;        
+                wrapper.style.transform = `perspective(1000px) rotateX(${60 - tiltX}deg) rotateZ(20deg) scale(0.65) translateZ(${bounceZ}px)`;
+            }
+
+            // 清空圓圈層 (ctxDraw)，但保留軌跡層 (ctxTrail)
+            ctxDraw.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
+
+            // 繪製灰色底圖 (Ghost Path)
+            if (state.path.length > 0) {
+                ctxDraw.beginPath();
+                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`;
+                ctxDraw.lineWidth = 2;
+                const startX = state.isImageMode ? state.origin.x : 0;
+                const startY = state.isImageMode ? state.origin.y : 0;
+                ctxDraw.moveTo(startX + state.path[0].x, startY + state.path[0].y);
+                for(let p of state.path) ctxDraw.lineTo(startX + p.x, startY + p.y);
+                ctxDraw.stroke();
+            }
+
+            // 傅立葉動畫
+            if (state.fourierX.length > 0) {
+                let x = state.origin.x;
+                let y = state.origin.y;
+
+                for (let i = 0; i < state.fourierX.length; i++) {
+                    let prevX = x, prevY = y;
+                    let freq = state.fourierX[i].freq;
+                    let radius = state.fourierX[i].amp;
+                    let phase = state.fourierX[i].phase;
+
+                    x += radius * Math.cos(freq * state.drawTime + phase);
+                    y += radius * Math.sin(freq * state.drawTime + phase);
+
+                    if (radius > 0.5) { 
+                        // 3D 懸浮陰影與支柱
+                        if (is3DMode && radius > 2) {
+                            const levitation = 10 + bass * 80; 
+                            // 陰影
+                            ctxDraw.beginPath();
+                            ctxDraw.strokeStyle = "rgba(0, 0, 0, 0.5)";
+                            ctxDraw.lineWidth = 2;
+                            ctxDraw.arc(prevX, prevY + levitation, radius, 0, Math.PI * 2);
+                            ctxDraw.stroke();
+                            // 支柱
+                            ctxDraw.beginPath();
+                            ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.1})`;
+                            ctxDraw.moveTo(prevX, prevY + radius);
+                            ctxDraw.lineTo(prevX, prevY + levitation + radius);
+                            ctxDraw.stroke();
+                        }
+
+                        // 圓圈本體
+                        ctxDraw.beginPath();
+                        ctxDraw.strokeStyle = `rgba(${150 - bass*150}, ${255 - bass*50}, 255, 0.4)`; 
+                        ctxDraw.lineWidth = 1;
+                        ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
+                        ctxDraw.stroke();
+
+                        // 半徑連線
+                        ctxDraw.beginPath();
+                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)"; 
+                        ctxDraw.lineWidth = 1.5;
+                        ctxDraw.moveTo(prevX, prevY);
+                        ctxDraw.lineTo(x, y);
+                        ctxDraw.stroke();
+                    }
+                }
+
+                // 繪製軌跡 (Trail)
+                if (state.lastPoint) {
+                    const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);                    
+                    const jumpThreshold = 2 + state.drawSpeed * 3; 
+                    let opacity = 1;
+                    if (dist > jumpThreshold) opacity = Math.max(0.02, jumpThreshold / (dist * 1.5));
+
+                    ctxTrail.beginPath();
+                    ctxTrail.lineWidth = 2.5 + bass * 8; // 音樂越強線越粗
+                    ctxTrail.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctxTrail.lineCap = "round";
+                    ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y);
+                    ctxTrail.lineTo(x, y);
+                    ctxTrail.stroke();
+                }
+
+                state.lastPoint = {x, y};
+                const dt = (2 * Math.PI / state.fourierX.length);
+                state.drawTime += dt * state.drawSpeed;
+
+                // 循環重置 (不清除軌跡)
+                if (state.drawTime > 2 * Math.PI) {
+                    state.drawTime = 0;
+                    state.lastPoint = null;
+                }
+            }
         }
 
        function drawStudioLoop() {
