@@ -324,67 +324,6 @@
         }
     </style>
 
-<style>
-        /* Loading Overlay */
-        #loading-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 200;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        #loading-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .spinner {
-            width: 50px; height: 50px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-
-        /* Mobile Navigation */
-        @media (max-width: 768px) {
-            nav {
-                padding: 1rem !important; /* px-4 py-4 */
-                flex-direction: column;
-                gap: 1rem;
-            }
-            nav > div:first-child {
-                margin-bottom: 0.5rem;
-            }
-            nav > div:last-child {
-                gap: 1rem !important; /* Smaller gap between items */
-                padding: 0.5rem 1rem !important;
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* Mobile Studio Controls */
-        @media (max-width: 768px) {
-            #studio-controls-panel {
-                top: auto !important;
-                bottom: 20px;
-                right: 20px;
-                width: calc(100% - 40px) !important;
-                max-height: 40vh;
-                overflow-y: auto;
-            }
-        }
-    </style>
 </head>
 <body class="font-sans selection:bg-white selection:text-black">
 
@@ -401,13 +340,6 @@
     </nav>
 
     <!-- Modal for Lessons -->
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div class="text-xs font-mono tracking-widest text-gray-400">PROCESSING FOURIER TRANSFORM</div>
-    </div>
-
     <div id="lesson-modal">
         <div class="lesson-content">
             <button onclick="closeLesson()" class="fixed top-6 right-6 text-gray-500 hover:text-white text-2xl z-50 w-10 h-10 bg-black/50 rounded-full backdrop-blur flex items-center justify-center border border-white/10 transition-all hover:bg-white/20">✕</button>
@@ -660,7 +592,7 @@
             <canvas id="canvas-draw" class="canvas-layer"></canvas>
         </div>
 
-        <div id="studio-controls-panel" class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
+        <div class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
             <div>
                 <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">TOOLS</label>
                 <div class="grid grid-cols-2 gap-3">
@@ -1598,100 +1530,33 @@
         });
 
         // --- Same logic as V7.0 below ---
-// --- FFT Algorithm ---
-        class Complex {
-            constructor(re, im) {
-                this.re = re;
-                this.im = im;
-            }
-            add(c) { return new Complex(this.re + c.re, this.im + c.im); }
-            sub(c) { return new Complex(this.re - c.re, this.im - c.im); }
-            mult(c) { return new Complex(this.re * c.re - this.im * c.im, this.re * c.im + this.im * c.re); }
-        }
-
-        function fft(x) {
+// --- DFT Algorithm ---
+        function dft(x) {
+            const X = [];
             const N = x.length;
-            if (N <= 1) return x;
+            for (let k = 0; k < N; k++) {
+                let re = 0;
+                let im = 0;
+                for (let n = 0; n < N; n++) {
+                    const phi = (2 * Math.PI * k * n) / N;
+                    re += x[n].x * Math.cos(phi) + x[n].y * Math.sin(phi);
+                    im += x[n].y * Math.cos(phi) - x[n].x * Math.sin(phi);
+                }
+                re = re / N;
+                im = im / N;
 
-            const even = [];
-            const odd = [];
-            for (let i = 0; i < N; i++) {
-                if (i % 2 === 0) even.push(x[i]);
-                else odd.push(x[i]);
-            }
+                let freq = k;
+                let amp = Math.sqrt(re * re + im * im);
+                let phase = Math.atan2(im, re);
 
-            const evenFFT = fft(even);
-            const oddFFT = fft(odd);
+                // Handle negative frequencies
+                if (k > N / 2) {
+                    freq = k - N;
+                }
 
-            const X = new Array(N);
-            for (let k = 0; k < N / 2; k++) {
-                const angle = -2 * Math.PI * k / N;
-                const W = new Complex(Math.cos(angle), Math.sin(angle));
-                const t = W.mult(oddFFT[k]);
-
-                X[k] = evenFFT[k].add(t);
-                X[k + N / 2] = evenFFT[k].sub(t);
+                X[k] = { re, im, freq, amp, phase };
             }
             return X;
-        }
-
-        function resamplePath(path, N) {
-            if (path.length === 0) return [];
-
-            // Calculate total length
-            let totalDist = 0;
-            const dists = []; // Store cumulative distances
-            dists.push(0);
-
-            for (let i = 0; i < path.length - 1; i++) {
-                const dx = path[i+1].x - path[i].x;
-                const dy = path[i+1].y - path[i].y;
-                const d = Math.sqrt(dx*dx + dy*dy);
-                totalDist += d;
-                dists.push(totalDist);
-            }
-
-            // Handle single point case
-            if (totalDist === 0) {
-                const arr = [];
-                for(let i=0; i<N; i++) arr.push(path[0]);
-                return arr;
-            }
-
-            const step = totalDist / N;
-            const newPath = [];
-
-            // Interpolate
-            let currentPathIdx = 0;
-            for (let i = 0; i < N; i++) {
-                const targetDist = i * step;
-
-                // Find segment
-                while (currentPathIdx < dists.length - 1 && dists[currentPathIdx+1] < targetDist) {
-                    currentPathIdx++;
-                }
-
-                if (currentPathIdx >= path.length - 1) {
-                    newPath.push(path[path.length - 1]);
-                } else {
-                    const startDist = dists[currentPathIdx];
-                    const endDist = dists[currentPathIdx+1];
-                    const segLen = endDist - startDist;
-
-                    if (segLen === 0) {
-                        newPath.push(path[currentPathIdx]);
-                    } else {
-                        const ratio = (targetDist - startDist) / segLen;
-                        const p1 = path[currentPathIdx];
-                        const p2 = path[currentPathIdx+1];
-                        newPath.push({
-                            x: p1.x + (p2.x - p1.x) * ratio,
-                            y: p1.y + (p2.y - p1.y) * ratio
-                        });
-                    }
-                }
-            }
-            return newPath;
         }
 
         // --- Setup Canvases ---
@@ -1998,59 +1863,21 @@
         }
 
         function calculateFourier(skip) {
-            statusMsg.innerText = "Computing FFT...";
-            document.getElementById('loading-overlay').classList.add('active');
+            statusMsg.innerText = "Computing DFT...";
+            const sampled = [];
+            for(let i=0; i<state.path.length; i+=skip) sampled.push(state.path[i]);
 
-            // Allow UI to update before blocking
-            setTimeout(() => {
-                // 1. Resample to Power of 2
-                let N = 256;
-                const targetLen = state.path.length;
-                // Adaptive resolution based on drawing complexity
-                if (targetLen > 256) N = 512;
-                if (targetLen > 512) N = 1024;
-                if (targetLen > 1024) N = 2048;
-                if (targetLen > 2048) N = 4096;
-                // Cap at 4096 for performance
+            state.fourierX = dft(sampled);
 
-                const resampled = resamplePath(state.path, N);
+            if (state.isImageMode) {
+                state.fourierX[0].re = 0;
+                state.fourierX[0].im = 0;
+            }
 
-                // 2. Convert to Complex
-                const complexArray = resampled.map(p => new Complex(p.x, p.y));
-
-                // 3. FFT
-                const fftResult = fft(complexArray);
-
-                // 4. Format Output
-                state.fourierX = [];
-                const len = fftResult.length;
-                for (let k = 0; k < len; k++) {
-                    let re = fftResult[k].re / len;
-                    let im = fftResult[k].im / len;
-
-                    let freq = k;
-                    let amp = Math.sqrt(re * re + im * im);
-                    let phase = Math.atan2(im, re);
-
-                    // Handle negative frequencies
-                    if (k > len / 2) {
-                        freq = k - len;
-                    }
-
-                    state.fourierX.push({ re, im, freq, amp, phase });
-                }
-
-                if (state.isImageMode) {
-                     const dc = state.fourierX.find(x => x.freq === 0);
-                     if(dc) { dc.re = 0; dc.im = 0; dc.amp = 0; }
-                }
-
-                state.fourierX.sort((a, b) => b.amp - a.amp);
-                state.drawTime = 0;
-                state.lastPoint = null;
-                statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
-                document.getElementById('loading-overlay').classList.remove('active');
-            }, 10);
+            state.fourierX.sort((a, b) => b.amp - a.amp);
+            state.drawTime = 0;
+            state.lastPoint = null;
+            statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
         }
 
 
