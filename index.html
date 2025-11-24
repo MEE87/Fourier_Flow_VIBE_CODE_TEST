@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fourier Flow | Deep Learning</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- MathJax for LaTeX Rendering -->
     <script>
         MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                packages: {'[+]': ['ams']} 
+                packages: {'[+]': ['ams']}
             },
             svg: { fontCache: 'global' },
             startup: {
@@ -76,7 +76,7 @@
             pointer-events: auto;
             z-index: 1;
         }
-        
+
         /* Knowledge Page Scroll */
         #page-knowledge {
             overflow-y: auto;
@@ -132,7 +132,7 @@
             font-family: 'JetBrains Mono', monospace;
             outline: none;
         }
-        
+
         /* Flip Card */
         .flip-card {
             background-color: transparent;
@@ -206,7 +206,7 @@
             opacity: 1;
             pointer-events: auto;
         }
-        
+
         .lesson-content {
             background: #0a0a0a;
             width: 90%;
@@ -252,22 +252,22 @@
         .lesson-body ul { list-style-type: disc; }
         .lesson-body ol { list-style-type: decimal; }
         .lesson-body li { margin-bottom: 0.5rem; }
-        .lesson-body .math-block { 
-            background: #111; 
-            padding: 1.5rem; 
-            border-radius: 8px; 
-            margin: 2rem 0; 
-            overflow-x: auto; 
-            text-align: center; 
+        .lesson-body .math-block {
+            background: #111;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            overflow-x: auto;
+            text-align: center;
             border: 1px solid #333;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
-        .lesson-body .highlight { 
-            background: rgba(59, 130, 246, 0.05); 
-            border-left: 3px solid #3b82f6; 
-            padding: 1.5rem; 
-            margin: 2rem 0; 
-            color: #dbeafe; 
+        .lesson-body .highlight {
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid #3b82f6;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            color: #dbeafe;
         }
 
         /* Spoiler / Hidden Answer Style */
@@ -323,7 +323,68 @@
             opacity: 1;
         }
     </style>
-    
+
+<style>
+        /* Loading Overlay */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #loading-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+
+        /* Mobile Navigation */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem !important; /* px-4 py-4 */
+                flex-direction: column;
+                gap: 1rem;
+            }
+            nav > div:first-child {
+                margin-bottom: 0.5rem;
+            }
+            nav > div:last-child {
+                gap: 1rem !important; /* Smaller gap between items */
+                padding: 0.5rem 1rem !important;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Mobile Studio Controls */
+        @media (max-width: 768px) {
+            #studio-controls-panel {
+                top: auto !important;
+                bottom: 20px;
+                right: 20px;
+                width: calc(100% - 40px) !important;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
 </head>
 <body class="font-sans selection:bg-white selection:text-black">
 
@@ -340,6 +401,13 @@
     </nav>
 
     <!-- Modal for Lessons -->
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="text-xs font-mono tracking-widest text-gray-400">PROCESSING FOURIER TRANSFORM</div>
+    </div>
+
     <div id="lesson-modal">
         <div class="lesson-content">
             <button onclick="closeLesson()" class="fixed top-6 right-6 text-gray-500 hover:text-white text-2xl z-50 w-10 h-10 bg-black/50 rounded-full backdrop-blur flex items-center justify-center border border-white/10 transition-all hover:bg-white/20">✕</button>
@@ -592,7 +660,7 @@
             <canvas id="canvas-draw" class="canvas-layer"></canvas>
         </div>
 
-        <div class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
+        <div id="studio-controls-panel" class="absolute top-24 right-8 glass-panel rounded-xl p-6 w-80 flex flex-col gap-6 transition-opacity duration-300 hover:opacity-100 opacity-90 z-50">
             <div>
                 <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">TOOLS</label>
                 <div class="grid grid-cols-2 gap-3">
@@ -604,7 +672,7 @@
                     <button onclick="saveImage()" class="col-span-2 py-3 border border-blue-500/30 text-blue-400 text-xs tracking-widest hover:bg-blue-500/10 transition rounded">SAVE IMAGE</button>
                 </div>
             </div>
-            
+
             <div class="p-4 bg-white/5 rounded border border-white/10">
                 <label class="text-[10px] font-bold text-gray-500 tracking-widest block mb-3">VIBE MODE</label>
                 <div class="flex gap-2">
@@ -634,7 +702,7 @@
             page: 'home',
             waveType: 'square', waveN: 5, time: 0, wavePath: [],
             drawing: false, path: [], fourierX: [], drawTime: 0, drawSpeed: 1,
-            origin: {x: 0, y: 0}, isImageMode: false, lastPoint: null, historyPaths: [] 
+            origin: {x: 0, y: 0}, isImageMode: false, lastPoint: null, historyPaths: []
         };
 
         // --- Detailed Course Content (Modal) ---
@@ -659,11 +727,11 @@
                         <p>在 $\\mathbb{R}^n$ 空間中，兩個向量 $\\mathbf{u}, \\mathbf{v}$ 的內積（Dot Product）定義為分量相乘再相加：</p>
                         <div class="math-block">$$\\mathbf{u} \\cdot \\mathbf{v} = \\sum_{i=1}^n u_i v_i$$</div>
                         <p>當我們從「離散」跨越到「連續」時，「求和 ($\\sum$)」就變成了「積分 ($\\int$)」。</p>
-                        
+
                         <h4 class="text-white font-bold mt-4">函數空間的內積定義</h4>
                         <p>對於定義在區間 $[a, b]$ 上的兩個實數函數 $f(t)$ 與 $g(t)$，我們定義它們的內積為：</p>
                         <div class="math-block">$$\\langle f, g \\rangle = \\int_{a}^{b} f(t) g(t) \\, dt$$</div>
-                        
+
                         <p><strong>注意（複數修正）：</strong><br>傅立葉變換大量涉及複數。在複數向量空間中，為了保證長度（Norm）是實數，內積的定義需要包含「共軛複數 ($\\overline{g(t)}$)」：</p>
                         <div class="math-block">$$\\langle f, g \\rangle = \\int_{a}^{b} f(t) \\overline{g(t)} \\, dt$$</div>
 
@@ -715,7 +783,7 @@
                             <p>因此，代入上下限 $\\pi$ 和 $-\\pi$ 後，所有項皆為 0。</p>
                             <div class="math-block">$$I = 0$$</div>
                             <p>得證，兩函數正交。</p>
-                            
+
                             <h4 class="text-white font-bold mt-6">2. 計算 $f(t) = 1$ 在 $[0, 1]$ 上的長度</h4>
                             <p>函數 $f$ 的長度（Norm）記為 $\\|f\\|$，定義為：</p>
                             <div class="math-block">$$\\|f\\| = \\sqrt{\\langle f, f \\rangle}$$</div>
@@ -725,7 +793,7 @@
                             <div class="math-block">$$\\|f\\| = \\sqrt{1} = 1$$</div>
                             <p>答案：$1$</p>
                         </div>
-                        
+
                         <div class="mt-8 p-4 border-t border-white/20">
                             <p class="text-gray-400">如果這部分的正交概念清楚了，我們就可以在下一課直接引入歐拉公式，將這些 $\\sin$ 和 $\\cos$ 打包成更優雅的 $e^{int}$。</p>
                         </div>
@@ -795,9 +863,9 @@
                             <p class="text-gray-300">為了熟悉複數形式的操作，請嘗試解決以下經典問題。</p>
                             <p class="text-gray-300 mt-2">設有一週期為 $2\\pi$ 的方波函數 $f(t)$，定義如下：</p>
                             <div class="math-block">
-                                $$f(t) = \\begin{cases} 
+                                $$f(t) = \\begin{cases}
                                 -1, & -\\pi < t < 0 \\\\
-                                1, & 0 < t < \\pi 
+                                1, & 0 < t < \\pi
                                 \\end{cases}$$
                             </div>
                             <p class="text-gray-300">請計算其複數傅立葉係數 $c_n$。</p>
@@ -808,7 +876,7 @@
                         <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
                         <div class="spoiler-blur" onclick="this.classList.add('revealed')">
                             <h4 class="text-white font-bold mt-0">題目：計算方波 $f(t)$ 的複數傅立葉係數 $c_n$</h4>
-                            
+
                             <p>根據定義公式：</p>
                             <div class="math-block">$$c_n = \\frac{1}{2\\pi} \\int_{-\\pi}^{\\pi} f(t) e^{-int} \\, dt$$</div>
 
@@ -842,11 +910,11 @@
                                 <li>當 $n$ 為偶數時， $(-1)^n = 1$，則 $c_n = 0$。</li>
                                 <li>當 $n$ 為奇數時， $(-1)^n = -1$，則 $c_n = \\frac{i}{\\pi n} (-2) = \\frac{-2i}{n\\pi}$。</li>
                             </ul>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <div class="math-block">
-                                    $$c_n = \\begin{cases} 
+                                    $$c_n = \\begin{cases}
                                     0, & n \\text{ 為偶數} \\\\
                                     \\frac{-2i}{n\\pi}, & n \\text{ 為奇數}
                                     \\end{cases}$$
@@ -875,7 +943,7 @@
                         <h3>2. 定義：連續傅立葉變換</h3>
                         <p>我們不再求和（Summation），而是積分（Integration）。係數 $c_n$ 變成了函數 $F(\\omega)$。</p>
                         <p>這就是大名鼎鼎的傅立葉變換對：</p>
-                        
+
                         <p><strong>(1) 傅立葉變換 (分析 Analysis)</strong></p>
                         <p>將時間訊號分解為頻率成分：</p>
                         <div class="math-block">$$F(\\omega) = \\int_{-\\infty}^{\\infty} f(t) e^{-i\\omega t} \\, dt$$</div>
@@ -897,9 +965,9 @@
                         <h3>4. 重要範例：矩形波 (Rect) 與 Sinc 函數</h3>
                         <p>考慮一個最簡單的非週期訊號：矩形脈衝（門函數）。</p>
                         <div class="math-block">
-                            $$\\text{rect}(t) = \\begin{cases} 
+                            $$\\text{rect}(t) = \\begin{cases}
                             1, & |t| < 0.5 \\\\
-                            0, & |t| > 0.5 
+                            0, & |t| > 0.5
                             \\end{cases}$$
                         </div>
                         <p>它的傅立葉變換結果是著名的 <strong>Sinc 函數</strong> ($\\frac{\\sin x}{x}$)。</p>
@@ -918,7 +986,7 @@
                         <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
                         <div class="spoiler-blur" onclick="this.classList.add('revealed')">
                             <h4 class="text-white font-bold mt-0">題目：計算 $f(t) = e^{-at} u(t)$ 的傅立葉變換 ($a>0$)</h4>
-                            
+
                             <p><strong>1. 設定積分</strong></p>
                             <p>根據定義，因為 $u(t)$ 在 $t<0$ 時為 0，積分下限變為 0：</p>
                             <div class="math-block">$$F(\\omega) = \\int_{0}^{\\infty} e^{-at} e^{-i\\omega t} \\, dt$$</div>
@@ -927,7 +995,7 @@
 
                             <p><strong>2. 計算瑕積分</strong></p>
                             <div class="math-block">$$F(\\omega) = \\left[ \\frac{e^{-(a + i\\omega)t}}{-(a + i\\omega)} \\right]_{0}^{\\infty}$$</div>
-                            
+
                             <p><strong>3. 分析上下限</strong></p>
                             <ul class="list-disc pl-6 text-gray-300 mb-4">
                                 <li><strong>上限 ($t \\to \\infty$)：</strong><br> $|e^{-(a + i\\omega)t}| = |e^{-at} \\cdot e^{-i\\omega t}| = e^{-at}$。<br>因為題目給定 $a > 0$，當 $t \\to \\infty$ 時，$e^{-at} \\to 0$。所以上限值為 0。</li>
@@ -936,7 +1004,7 @@
 
                             <p><strong>4. 代入計算</strong></p>
                             <div class="math-block">$$F(\\omega) = 0 - \\frac{1}{-(a + i\\omega)} = \\frac{1}{a + i\\omega}$$</div>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <div class="math-block">$$F(\\omega) = \\frac{1}{a + i\\omega}$$</div>
@@ -998,7 +1066,7 @@
                             <h4 class="text-white font-bold mb-2">題目：矩形波的自卷積</h4>
                             <p class="text-gray-300">設有一矩形脈衝函數 (Gate function) $f(t)$ 定義如下：</p>
                             <div class="math-block">
-                                $$f(t) = \\begin{cases} 
+                                $$f(t) = \\begin{cases}
                                 1, & -0.5 \\le t \\le 0.5 \\\\
                                 0, & \\text{其他}
                                 \\end{cases}$$
@@ -1011,7 +1079,7 @@
                         <p class="text-xs text-gray-500 mb-2">(點擊下方區域查看詳細計算過程)</p>
                         <div class="spoiler-blur" onclick="this.classList.add('revealed')">
                             <h4 class="text-white font-bold mt-0">題目：計算矩形波 $f(t)$ 的自卷積 $y(t) = f(t) * f(t)$</h4>
-                            
+
                             <p><strong>1. 設定積分式</strong></p>
                             <p>根據定義：$$y(t) = \\int_{-\\infty}^{\\infty} f(\\tau) f(t - \\tau) \\, d\\tau$$</p>
                             <p>由於 $f(\\tau)$ 僅在 $[-0.5, 0.5]$ 為 1，積分範圍縮小為：</p>
@@ -1020,7 +1088,7 @@
 
                             <p class="mt-4"><strong>2. 分段討論</strong></p>
                             <p>我們移動 $t$ 來觀察重疊情況：</p>
-                            
+
                             <ul class="list-disc pl-6 text-gray-300 space-y-2">
                                 <li><strong>情況 A：完全不重疊 ($t < -1$)</strong><br>
                                 區間 $[t-0.5, t+0.5]$ 完全在 $[-0.5, 0.5]$ 的左邊。<br>
@@ -1045,7 +1113,7 @@
 
                             <p class="mt-4"><strong>3. 結論</strong></p>
                             <div class="math-block">
-                                $$y(t) = \\begin{cases} 
+                                $$y(t) = \\begin{cases}
                                 t + 1, & -1 \\le t < 0 \\\\
                                 1 - t, & 0 \\le t < 1 \\\\
                                 0, & \\text{其他}
@@ -1053,7 +1121,7 @@
                             </div>
                             <p>或者寫成精簡形式：</p>
                             <div class="math-block">$$y(t) = \\max(0, 1 - |t|)$$</div>
-                            
+
                             <p class="mt-4 text-white font-bold">圖形描述：</p>
                             <p>這是一個三角形函數 (Triangle Function)。兩個矩形波卷積，會產生一個三角形波。這展示了卷積具有「平滑化」訊號的效果（從不連續的方波變成了連續的三角波）。</p>
                         </div>
@@ -1148,7 +1216,7 @@
                             <div class="math-block">$$\\frac{1}{\\pi^2} I = \\frac{1}{\\pi}$$</div>
                             <p>解出 $I$：</p>
                             <div class="math-block">$$I = \\frac{1}{\\pi} \\times \\pi^2 = \\pi$$</div>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <div class="math-block">$$\\int_{-\\infty}^{\\infty} \\left( \\frac{\\sin t}{t} \\right)^2 \\, dt = \\pi$$</div>
@@ -1235,7 +1303,7 @@
                             <p>或者看原本位於 $+100$ Hz 的分量。它被複製平移了 $-f_s (-150)$ Hz：</p>
                             <div class="math-block">$$100 - 150 = -50 \\text{ Hz}$$</div>
                             <p>重建濾波器只會保留奈奎斯特區間 $[-75, 75]$ 內的頻率。在這個區間內，現在出現了新的頻率分量 $\\pm 50$ Hz。</p>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <ul class="list-disc pl-6 mb-0">
@@ -1353,7 +1421,7 @@
                                 <li><strong>當 $k=2$ (中頻/奈奎斯特頻率):</strong><br>$X[2] = 1 - W_4^4$<br>因為 $W_4^4 = (W_4^0) = 1$ (轉一圈回到原點)<br>$X[2] = 1 - 1 = 0$</li>
                                 <li><strong>當 $k=3$ (負基頻):</strong><br>$X[3] = 1 - W_4^6$<br>$W_4^6 = W_4^4 \\cdot W_4^2 = 1 \\cdot (-1) = -1$<br>$X[3] = 1 - (-1) = 2$</li>
                             </ul>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <div class="math-block">$$X[k] = [0, 2, 0, 2]$$</div>
@@ -1457,7 +1525,7 @@
                             <p>已知 $\\int_{-\\infty}^{\\infty} e^{-ax^2} dx = \\sqrt{\\frac{\\pi}{a}}$。</p>
                             <p>雖然這裡的變數平移了一個複數常數 $\\frac{i\\omega}{2a}$，但在複變函數論中，積分路徑平移不改變全域積分值（柯西積分定理）。</p>
                             <p>所以積分部分的值仍為 $\\sqrt{\\frac{\\pi}{a}}$。</p>
-                            
+
                             <div class="highlight">
                                 <p><strong>答案：</strong></p>
                                 <div class="math-block">$$F(\\omega) = \\sqrt{\\frac{\\pi}{a}} e^{-\\frac{\\omega^2}{4a}}$$</div>
@@ -1473,7 +1541,7 @@
                                 <li>那麼 $\\frac{1}{4a}$ 就會很小（頻域 $e^{-\\frac{\\omega^2}{4a}}$ 衰減慢，圖形很寬）。</li>
                             </ul>
                             <p class="mt-2 text-blue-300 font-bold">這完美驗證了不確定性原理：時域越窄，頻域越寬。</p>
-                            
+
                             <div class="mt-8 p-4 border-t border-white/20 text-center">
                                 <p class="text-white font-bold text-lg">🎉 恭喜你完成了這 8 堂傅立葉變換的系統性課程！</p>
                                 <p class="text-sm text-gray-400 mt-2">希望這套「從幾何直觀到演算法實踐」的框架，能成為你未來深入研究數學與物理的堅實基石。</p>
@@ -1494,7 +1562,7 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('nav-' + pageId).classList.add('active');
             if(pageId === 'studio') resize();
-            
+
             // Typeset MathJax when showing knowledge page
             if(pageId === 'knowledge' && window.MathJax) {
                 setTimeout(() => MathJax.typesetPromise(), 50);
@@ -1530,49 +1598,116 @@
         });
 
         // --- Same logic as V7.0 below ---
-// --- DFT Algorithm ---
-        function dft(x) {
-            const X = [];
-            const N = x.length;
-            for (let k = 0; k < N; k++) {
-                let re = 0;
-                let im = 0;
-                for (let n = 0; n < N; n++) {
-                    const phi = (2 * Math.PI * k * n) / N;
-                    re += x[n].x * Math.cos(phi) + x[n].y * Math.sin(phi);
-                    im += x[n].y * Math.cos(phi) - x[n].x * Math.sin(phi);
-                }
-                re = re / N;
-                im = im / N;
-                
-                let freq = k;
-                let amp = Math.sqrt(re * re + im * im);
-                let phase = Math.atan2(im, re);
-                
-                // Handle negative frequencies
-                if (k > N / 2) {
-                    freq = k - N;
-                }
+// --- FFT Algorithm ---
+        class Complex {
+            constructor(re, im) {
+                this.re = re;
+                this.im = im;
+            }
+            add(c) { return new Complex(this.re + c.re, this.im + c.im); }
+            sub(c) { return new Complex(this.re - c.re, this.im - c.im); }
+            mult(c) { return new Complex(this.re * c.re - this.im * c.im, this.re * c.im + this.im * c.re); }
+        }
 
-                X[k] = { re, im, freq, amp, phase };
+        function fft(x) {
+            const N = x.length;
+            if (N <= 1) return x;
+
+            const even = [];
+            const odd = [];
+            for (let i = 0; i < N; i++) {
+                if (i % 2 === 0) even.push(x[i]);
+                else odd.push(x[i]);
+            }
+
+            const evenFFT = fft(even);
+            const oddFFT = fft(odd);
+
+            const X = new Array(N);
+            for (let k = 0; k < N / 2; k++) {
+                const angle = -2 * Math.PI * k / N;
+                const W = new Complex(Math.cos(angle), Math.sin(angle));
+                const t = W.mult(oddFFT[k]);
+
+                X[k] = evenFFT[k].add(t);
+                X[k + N / 2] = evenFFT[k].sub(t);
             }
             return X;
+        }
+
+        function resamplePath(path, N) {
+            if (path.length === 0) return [];
+
+            // Calculate total length
+            let totalDist = 0;
+            const dists = []; // Store cumulative distances
+            dists.push(0);
+
+            for (let i = 0; i < path.length - 1; i++) {
+                const dx = path[i+1].x - path[i].x;
+                const dy = path[i+1].y - path[i].y;
+                const d = Math.sqrt(dx*dx + dy*dy);
+                totalDist += d;
+                dists.push(totalDist);
+            }
+
+            // Handle single point case
+            if (totalDist === 0) {
+                const arr = [];
+                for(let i=0; i<N; i++) arr.push(path[0]);
+                return arr;
+            }
+
+            const step = totalDist / N;
+            const newPath = [];
+
+            // Interpolate
+            let currentPathIdx = 0;
+            for (let i = 0; i < N; i++) {
+                const targetDist = i * step;
+
+                // Find segment
+                while (currentPathIdx < dists.length - 1 && dists[currentPathIdx+1] < targetDist) {
+                    currentPathIdx++;
+                }
+
+                if (currentPathIdx >= path.length - 1) {
+                    newPath.push(path[path.length - 1]);
+                } else {
+                    const startDist = dists[currentPathIdx];
+                    const endDist = dists[currentPathIdx+1];
+                    const segLen = endDist - startDist;
+
+                    if (segLen === 0) {
+                        newPath.push(path[currentPathIdx]);
+                    } else {
+                        const ratio = (targetDist - startDist) / segLen;
+                        const p1 = path[currentPathIdx];
+                        const p2 = path[currentPathIdx+1];
+                        newPath.push({
+                            x: p1.x + (p2.x - p1.x) * ratio,
+                            y: p1.y + (p2.y - p1.y) * ratio
+                        });
+                    }
+                }
+            }
+            return newPath;
         }
 
         // --- Setup Canvases ---
         const canvasWave = document.getElementById('canvas-wave');
         const ctxWave = canvasWave.getContext('2d');
-        
+
         const canvasDraw = document.getElementById('canvas-draw');
         const ctxDraw = canvasDraw.getContext('2d');
-        
+
         const canvasTrail = document.getElementById('canvas-trail');
         const ctxTrail = canvasTrail.getContext('2d');
 
         function resize() {
             const w = window.innerWidth;
             const h = window.innerHeight;
-            
+
             canvasWave.width = w; canvasWave.height = h;
             canvasDraw.width = w; canvasDraw.height = h;
             canvasTrail.width = w; canvasTrail.height = h;
@@ -1598,10 +1733,10 @@
             state.isImageMode = false;
             state.path = [];
             state.fourierX = [];
-            
+
             ctxTrail.clearRect(0, 0, canvasTrail.width, canvasTrail.height);
             state.lastPoint = null;
-            
+
             state.origin = {x: 0, y: 0};
             statusMsg.innerText = "Recording...";
         }
@@ -1632,14 +1767,14 @@
  window.processImage = function(input) {
             if (!input.files || !input.files[0]) return;
             statusMsg.innerText = "Scanning (Canny Edge Mode)...";
-            
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
                     const tempC = document.createElement('canvas');
                     // 1. 適度降噪：將圖片縮小到 800px 寬，這本身就是一種很好的平滑化
-                    const scale = 800 / Math.max(img.width, img.height); 
+                    const scale = 800 / Math.max(img.width, img.height);
                     const w = Math.floor(img.width * scale);
                     const h = Math.floor(img.height * scale);
                     tempC.width = w;
@@ -1659,22 +1794,22 @@
                     // 3. 計算梯度與方向 (Sobel Gradients)
                     const mag = new Float32Array(w * h);
                     const angles = new Float32Array(w * h);
-                    
+
                     for (let y = 1; y < h - 1; y++) {
                         for (let x = 1; x < w - 1; x++) {
                             const i = y * w + x;
-                            
+
                             // X 方向梯度
-                            const gx = 
+                            const gx =
                                 -gray[i - w - 1] + gray[i - w + 1] +
                                 -2 * gray[i - 1] + 2 * gray[i + 1] +
                                 -gray[i + w - 1] + gray[i + w + 1];
-                                
+
                             // Y 方向梯度
-                            const gy = 
+                            const gy =
                                 -gray[i - w - 1] - 2 * gray[i - w] - gray[i - w + 1] +
                                  gray[i + w - 1] + 2 * gray[i + w] + gray[i + w + 1];
-                            
+
                             mag[i] = Math.sqrt(gx * gx + gy * gy);
                             angles[i] = Math.atan2(gy, gx);
                         }
@@ -1684,7 +1819,7 @@
                     // 它會把粗邊緣「削」成 1 像素寬的細線
                     statusMsg.innerText = "Thinning Edges...";
                     const nms = new Float32Array(w * h);
-                    
+
                     for (let y = 1; y < h - 1; y++) {
                         for (let x = 1; x < w - 1; x++) {
                             const i = y * w + x;
@@ -1696,7 +1831,7 @@
 
                             // 根據梯度方向，檢查相鄰像素是否更強
                             let q = 255, r = 255;
-                            
+
                             if ((angle >= 0 && angle < 22.5) || (angle >= 157.5 && angle <= 180)) {
                                 q = mag[i + 1]; r = mag[i - 1]; // 水平方向
                             } else if (angle >= 22.5 && angle < 67.5) {
@@ -1720,7 +1855,7 @@
                     // 強邊緣直接保留，弱邊緣只有在連接到強邊緣時才保留
                     const highThreshold = 35; // 強門檻
                     const lowThreshold = 10;  // 弱門檻
-                    
+
                     const edges = [];
                     const visited = new Uint8Array(w * h);
                     const stack = [];
@@ -1731,7 +1866,7 @@
                             let segment = [];
                             stack.push(i);
                             visited[i] = 1;
-                            
+
                             while (stack.length > 0) {
                                 const currIdx = stack.pop();
                                 const cx = currIdx % w;
@@ -1765,10 +1900,10 @@
                     // 6. 路徑拼接 (Greedy Stitching)
                     setTimeout(() => {
                         edges.sort((a, b) => b.length - a.length); // 先畫長線
-                        
+
                         let finalPath = [];
                         let unvisited = edges.map(e => ({path: e, used: false}));
-                        
+
                         if (unvisited.length === 0) {
                              statusMsg.innerText = "No edges found."; return;
                         }
@@ -1777,7 +1912,7 @@
                         let currSeg = unvisited[0];
                         currSeg.used = true;
                         finalPath = finalPath.concat(currSeg.path);
-                        
+
                         const maxTotalPoints = 20000; // 安全上限
 
                         while(true) {
@@ -1787,7 +1922,7 @@
                             let reverse = false;
 
                             // 搜尋最近的下一條線
-                            const scanLimit = Math.min(unvisited.length, 500); 
+                            const scanLimit = Math.min(unvisited.length, 500);
                             let scanned = 0;
 
                             for(let i=0; i<unvisited.length; i++) {
@@ -1821,7 +1956,7 @@
                                     break; // 全部畫完了
                                 }
                             }
-                            
+
                             if (finalPath.length > maxTotalPoints) break;
                         }
 
@@ -1841,9 +1976,9 @@
                             x: (p.x - centerX) * screenScale,
                             y: (p.y - centerY) * screenScale
                         }));
-                        
+
                         // 最後的點數控制
-                        const targetPoints = 10000; 
+                        const targetPoints = 10000;
                         if (state.path.length > targetPoints) {
                             const step = Math.ceil(state.path.length / targetPoints);
                             state.path = state.path.filter((_, i) => i % step === 0);
@@ -1852,7 +1987,7 @@
                         state.isImageMode = true;
                         state.origin = { x: canvasDraw.width/2, y: canvasDraw.height/2 };
                         statusMsg.innerText = `DFT Ready (${state.path.length} pts)`;
-                        
+
                         setTimeout(() => calculateFourier(1), 50);
 
                     }, 50);
@@ -1863,29 +1998,67 @@
         }
 
         function calculateFourier(skip) {
-            statusMsg.innerText = "Computing DFT...";
-            const sampled = [];
-            for(let i=0; i<state.path.length; i+=skip) sampled.push(state.path[i]);
-            
-            state.fourierX = dft(sampled);
-            
-            if (state.isImageMode) {
-                state.fourierX[0].re = 0;
-                state.fourierX[0].im = 0;
-            }
+            statusMsg.innerText = "Computing FFT...";
+            document.getElementById('loading-overlay').classList.add('active');
 
-            state.fourierX.sort((a, b) => b.amp - a.amp);
-            state.drawTime = 0;
-            state.lastPoint = null;
-            statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
+            // Allow UI to update before blocking
+            setTimeout(() => {
+                // 1. Resample to Power of 2
+                let N = 256;
+                const targetLen = state.path.length;
+                // Adaptive resolution based on drawing complexity
+                if (targetLen > 256) N = 512;
+                if (targetLen > 512) N = 1024;
+                if (targetLen > 1024) N = 2048;
+                if (targetLen > 2048) N = 4096;
+                // Cap at 4096 for performance
+
+                const resampled = resamplePath(state.path, N);
+
+                // 2. Convert to Complex
+                const complexArray = resampled.map(p => new Complex(p.x, p.y));
+
+                // 3. FFT
+                const fftResult = fft(complexArray);
+
+                // 4. Format Output
+                state.fourierX = [];
+                const len = fftResult.length;
+                for (let k = 0; k < len; k++) {
+                    let re = fftResult[k].re / len;
+                    let im = fftResult[k].im / len;
+
+                    let freq = k;
+                    let amp = Math.sqrt(re * re + im * im);
+                    let phase = Math.atan2(im, re);
+
+                    // Handle negative frequencies
+                    if (k > len / 2) {
+                        freq = k - len;
+                    }
+
+                    state.fourierX.push({ re, im, freq, amp, phase });
+                }
+
+                if (state.isImageMode) {
+                     const dc = state.fourierX.find(x => x.freq === 0);
+                     if(dc) { dc.re = 0; dc.im = 0; dc.amp = 0; }
+                }
+
+                state.fourierX.sort((a, b) => b.amp - a.amp);
+                state.drawTime = 0;
+                state.lastPoint = null;
+                statusMsg.innerText = `Drawing (${state.fourierX.length} cycles)`;
+                document.getElementById('loading-overlay').classList.remove('active');
+            }, 10);
         }
-        
+
 
         // --- Rendering Loops ---
 
         function drawWaveLoop() {
             if(state.page !== 'home') return;
-            
+
             ctxWave.fillStyle = "#050505";
             ctxWave.fillRect(0, 0, canvasWave.width, canvasWave.height);
 
@@ -1916,7 +2089,7 @@
                 ctxWave.arc(prevX, prevY, Math.abs(radius), 0, Math.PI * 2);
                 ctxWave.stroke();
 
-                if (i < 20) { 
+                if (i < 20) {
                     ctxWave.beginPath();
                     ctxWave.strokeStyle = "rgba(255,255,255,0.3)";
                     ctxWave.moveTo(prevX, prevY);
@@ -1955,7 +2128,7 @@
             is3DMode = !is3DMode;
             const wrapper = document.getElementById('studio-canvas-wrapper');
             const btn = document.getElementById('btn-3d');
-            
+
             if (is3DMode) {
                 wrapper.classList.add('mode-3d');
                 btn.innerText = "3D VIEW";
@@ -1964,7 +2137,7 @@
             } else {
                 wrapper.classList.remove('mode-3d');
                 // 重要：清除 JS 施加的動態變形，回歸純淨 2D
-                wrapper.style.transform = ''; 
+                wrapper.style.transform = '';
                 btn.innerText = "2D VIEW";
                 btn.style.background = "transparent";
                 statusMsg.innerText = "2D Mode: Ready";
@@ -1978,11 +2151,11 @@
                     analyser = audioCtx.createAnalyser();
                     analyser.fftSize = 256;
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
-                    
+
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     const source = audioCtx.createMediaStreamSource(stream);
                     source.connect(analyser);
-                    
+
                     isAudioActive = true;
                     document.getElementById('btn-mic').innerText = "MIC ON";
                     document.getElementById('btn-mic').style.background = "rgba(34, 197, 94, 0.2)";
@@ -2011,16 +2184,16 @@
             if(state.page !== 'studio') return;
 
             // 1. 音訊驅動參數
-            const bass = getBassFactor(); 
-            
+            const bass = getBassFactor();
+
             // 2. 3D 舞台動態特效 (The Vibe)
             if (is3DMode) {
                 const wrapper = document.getElementById('studio-canvas-wrapper');
                 // 讓舞台隨著重低音在 Z 軸彈跳 (0px ~ 200px)
-                const bounceZ = bass * 200;     
+                const bounceZ = bass * 200;
                 // 讓舞台角度隨著節奏微微抬起 (Headbanging effect)
-                const tiltX = bass * 10;        
-                
+                const tiltX = bass * 10;
+
                 // 動態寫入 CSS (基底數值與 style.css 保持一致，並疊加動畫)
                 wrapper.style.transform = `perspective(1000px) rotateX(${60 - tiltX}deg) rotateZ(20deg) scale(0.65) translateZ(${bounceZ}px)`;
             }
@@ -2032,9 +2205,9 @@
             if (state.path.length > 0) {
                 ctxDraw.beginPath();
                 // 線條亮度隨音樂閃爍
-                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`; 
+                ctxDraw.strokeStyle = `rgba(255, 255, 255, ${0.05 + bass * 0.2})`;
                 ctxDraw.lineWidth = 2;
-                
+
                 const startX = state.isImageMode ? state.origin.x : 0;
                 const startY = state.isImageMode ? state.origin.y : 0;
 
@@ -2057,12 +2230,12 @@
                     x += radius * Math.cos(freq * state.drawTime + phase);
                     y += radius * Math.sin(freq * state.drawTime + phase);
 
-                    if (radius > 0.5) { 
+                    if (radius > 0.5) {
                         // --- 3D 高度模擬 (Levitation Effect) ---
                         if (is3DMode && radius > 2) {
                             // 計算懸浮高度 (隨音量變高)
-                            const levitation = 10 + bass * 80; 
-                            
+                            const levitation = 10 + bass * 80;
+
                             // A. 繪製「地板陰影」 (Shadow) - 位於圓圈下方
                             ctxDraw.beginPath();
                             ctxDraw.strokeStyle = "rgba(0, 0, 0, 0.5)"; // 深色陰影
@@ -2082,13 +2255,13 @@
 
                         ctxDraw.beginPath();
                         // 圓圈顏色隨音樂變換 (青色/白色閃爍)
-                        ctxDraw.strokeStyle = `rgba(${150 - bass*150}, ${255 - bass*50}, 255, 0.4)`; 
+                        ctxDraw.strokeStyle = `rgba(${150 - bass*150}, ${255 - bass*50}, 255, 0.4)`;
                         ctxDraw.lineWidth = 1;
                         ctxDraw.arc(prevX, prevY, radius, 0, Math.PI * 2);
                         ctxDraw.stroke();
 
                         ctxDraw.beginPath();
-                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)"; 
+                        ctxDraw.strokeStyle = "rgba(255, 255, 255, 0.6)";
                         ctxDraw.lineWidth = 1.5;
                         ctxDraw.moveTo(prevX, prevY);
                         ctxDraw.lineTo(x, y);
@@ -2098,9 +2271,9 @@
 
                 // 5. 畫出白色軌跡 (Trail)
                 if (state.lastPoint) {
-                    const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);                    
-                    const jumpThreshold = 2 + state.drawSpeed * 3; 
-                    
+                    const dist = Math.hypot(x - state.lastPoint.x, y - state.lastPoint.y);
+                    const jumpThreshold = 2 + state.drawSpeed * 3;
+
                     let opacity = 1;
                     if (dist > jumpThreshold) {
                         opacity = Math.max(0.02, jumpThreshold / (dist * 1.5));
@@ -2108,7 +2281,7 @@
 
                     ctxTrail.beginPath();
                     // 軌跡寬度隨重低音變粗
-                    ctxTrail.lineWidth = 2.5 + bass * 10; 
+                    ctxTrail.lineWidth = 2.5 + bass * 10;
                     ctxTrail.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
                     ctxTrail.lineCap = "round";
                     ctxTrail.moveTo(state.lastPoint.x, state.lastPoint.y);
@@ -2146,9 +2319,9 @@
         });
 
         window.setWaveType = type => { state.waveType = type; state.wavePath = []; };
-        
-        window.resetCanvas = () => { 
-            state.path = []; state.fourierX = []; 
+
+        window.resetCanvas = () => {
+            state.path = []; state.fourierX = [];
             state.lastPoint = null;
             state.drawTime = 0;
             statusMsg.innerText = "Ready";
